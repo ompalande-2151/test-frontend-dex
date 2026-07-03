@@ -1,7 +1,7 @@
 import type { Address } from "viem";
 import addresses from "./addresses.json";
 
-export const V3_FEE = 10000;
+export const V3_FEE = 3000;
 export const ZERO_SQRT_PRICE_LIMIT = 0n;
 export const ZERO_SQRT_LIMIT = 0n;
 export const API_BASE = import.meta.env.VITE_API_URL || "https://dex-production-c023.up.railway.app";

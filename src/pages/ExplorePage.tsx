@@ -1082,16 +1082,16 @@ function ExploreTable({ head, children }: { head: string[]; children: React.Reac
         : "glass border-white/60 text-zinc-900 shadow-black/5"}`}
     >
       <div className="overflow-x-auto">
-        <table className={`w-full text-sm ${isDark ? "text-slate-100" : "text-zinc-900"}`}>
+        <table className={`w-full text-xs sm:text-sm ${isDark ? "text-slate-100" : "text-zinc-900"}`}>
           <thead>
             {/* FIX: thead gets near-opaque bg so header labels are always crisp */}
-            <tr className={`text-left text-xs uppercase tracking-[0.18em] border-b font-bold
+            <tr className={`text-left text-[0.65rem] sm:text-xs uppercase tracking-[0.08em] sm:tracking-[0.18em] border-b font-bold
               ${isDark
                 ? "border-[#2C364F]/60 bg-[#070d18]/95 text-slate-300"
                 : "border-zinc-200/70 bg-zinc-50/90 text-zinc-500"}`}
             >
               {head.map((h) => (
-                <th key={h} className="px-5 py-4 font-semibold">{h}</th>
+                <th key={h} className="px-3 py-3 sm:px-5 sm:py-4 font-semibold whitespace-nowrap">{h}</th>
               ))}
             </tr>
           </thead>
@@ -1106,7 +1106,7 @@ function ExploreTable({ head, children }: { head: string[]; children: React.Reac
 }
 
 function Td({ children, className = "" }: { children: React.ReactNode; className?: string }) {
-  return <td className={`px-5 py-4 ${className}`}>{children}</td>;
+  return <td className={`px-3 py-3 sm:px-5 sm:py-4 whitespace-nowrap ${className}`}>{children}</td>;
 }
 
 function timeAgo(ts: number) {

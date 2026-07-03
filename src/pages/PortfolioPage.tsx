@@ -18,9 +18,9 @@ export default function PortfolioPageWrapper() {
       <div
         className={`min-h-screen pt-[104px] pb-6 relative font-sans transition-colors duration-300 ease-in-out select-none flex flex-col items-center justify-center px-4 ${isDark ? "dark text-white" : "text-zinc-950"}`}
       >
-        <div className="max-w-md w-full text-center p-8 rounded-3xl border border-zinc-200/50 dark:border-white/10 bg-white/50 dark:bg-black/20 backdrop-blur-md shadow-xl">
-          <p className={`text-sm mb-6 ${isDark ? "text-zinc-400" : "text-zinc-600"}`}>
-            you are not connected to the wallet , make sure to connect your wallet
+        <div className="max-w-md w-full text-center p-8 rounded-3xl border border-zinc-200/50 dark:border-white/10 bg-white/80 dark:bg-black/60 backdrop-blur-md shadow-xl">
+          <p className={`text-sm font-medium mb-6 ${isDark ? "text-zinc-200" : "text-zinc-700"}`}>
+            You are not connected to a wallet — connect your wallet to view your portfolio.
           </p>
           <button
             onClick={() => metaMaskConnector && connect({ connector: metaMaskConnector, chainId: mstChain.id })}

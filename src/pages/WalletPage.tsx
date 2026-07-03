@@ -31,7 +31,7 @@ export default function WalletPage() {
             <Wallet size={22} />
           </div>
           <h1 className="text-5xl font-extrabold uppercase tracking-wide">Connect MetaMask</h1>
-          <p className="mt-3 max-w-xl text-base leading-6 text-zinc-600 dark:text-zinc-400 font-medium">
+          <p className="mt-3 max-w-xl text-base leading-6 text-zinc-700 dark:text-zinc-200 font-medium [text-shadow:0_1px_8px_rgba(0,0,0,0.5)] dark:[text-shadow:0_1px_8px_rgba(0,0,0,0.8)]">
             Connect your wallet to MSWAP, confirm you are on MST Testnet, then continue to swaps and liquidity.
           </p>
         </div>
