@@ -1,0 +1,9 @@
+{
+  "name": "rapidex-contracts",
+  "private": true,
+  "scripts": {
+    "build": "forge build",
+    "test": "forge test",
+    "coverage": "forge coverage"
+  }
+}
