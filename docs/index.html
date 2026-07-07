@@ -1,0 +1,143 @@
+<!DOCTYPE html>
+<html lang="en">
+
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <title>Rapidex v3 Contracts</title>
+  <meta name="description"
+    content="Rapidex v3 smart contract integration documentation - guides for swapping, managing liquidity, fetching pool data, and using Rapidex as a price oracle directly in Solidity." />
+  <link rel="preconnect" href="https://fonts.googleapis.com" />
+  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin />
+  <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700&display=swap" rel="stylesheet" />
+  <link rel="stylesheet" href="./assets/styles.css" />
+  <script>(function () { try { if (localStorage.getItem('rapidex-theme') === 'light') document.documentElement.setAttribute('data-theme', 'light'); } catch (e) { } })();</script>
+</head>
+
+<body>
+
+  <canvas id="particles-canvas"></canvas>
+
+  <header class="site-header">
+    <div class="brand"><a href="./home.html" style="display:flex;align-items:center;"><img class="brand-logo"
+          data-src-dark="./assets/Rapidex Logo White.png" data-src-light="./assets/Rapidex Logo Black.png"
+          src="./assets/Rapidex Logo White.png" alt="Rapidex" style="height:50px;" /></a></div>
+    <nav>
+      <a href="./index.html" class="active">Docs</a>
+      <a href="./whitepaper.html">Whitepaper</a>
+      <a href="#">SDKs</a>
+    </nav>
+    <div class="header-actions">
+      <button class="theme-toggle" type="button" title="Toggle theme" aria-label="Toggle theme">
+        <svg class="icon-moon" fill="none" viewBox="0 0 24 24" stroke="currentColor" stroke-width="2">
+          <path stroke-linecap="round" stroke-linejoin="round" d="M21 12.79A9 9 0 1111.21 3 7 7 0 0021 12.79z" />
+        </svg>
+        <svg class="icon-sun" fill="none" viewBox="0 0 24 24" stroke="currentColor" stroke-width="2">
+          <circle cx="12" cy="12" r="4" />
+          <path stroke-linecap="round"
+            d="M12 2v2M12 20v2M4.93 4.93l1.41 1.41M17.66 17.66l1.41 1.41M2 12h2M20 12h2M6.34 17.66l-1.41 1.41M19.07 4.93l-1.41 1.41" />
+        </svg>
+      </button>
+      <a class="icon-link" href="https://github.com/singhritik62/final-dex" title="GitHub">GitHub</a>
+    </div>
+  </header>
+
+  <div class="shell">
+    <aside class="sidebar">
+      <div class="group">
+        <div class="group-title">Rapidex v3</div>
+        <a href="./index.html" class="active">Overview</a>
+      </div>
+      <div class="group">
+        <div class="group-title">Concepts</div>
+        <a href="./concepts/architecture.html">Architecture</a>
+        <a href="./concepts/unsupported-tokens.html">Unsupported Tokens</a>
+      </div>
+      <div class="group">
+        <div class="group-title">Guides</div>
+        <a href="./guides/getting-started.html">Getting Started</a>
+        <a href="./guides/swapping.html">Swapping</a>
+        <a href="./guides/managing-liquidity.html">Managing Liquidity</a>
+        <a href="./guides/pool-data.html">Fetching Pool Data</a>
+      </div>
+      <div class="group">
+        <div class="group-title">Reference</div>
+        <a href="./reference/deployments.html">Deployments</a>
+        <a href="./reference/audits.html">Audits</a>
+      </div>
+    </aside>
+
+    <div class="content-wrap">
+      <main class="content">
+        <h1>Rapidex Smart Contract Integration</h1>
+        <p class="lede">Solidity smart contract integrations for interacting directly with the Rapidex v3 protocol:
+          executing swaps, managing concentrated liquidity positions, and reading pool data.</p>
+
+        <h2 id="purpose">Purpose</h2>
+        <p>The Rapidex contracts allow developers to interact directly with the protocol on-chain. Developers can
+          perform swaps, manage concentrated liquidity positions, and query pool states directly from
+          their own Solidity smart contracts or using JSON-RPC.</p>
+
+        <h2 id="key-resources">Key Resources</h2>
+        <ul>
+          <li><strong>GitHub Repository</strong>: Rapidex v3 Smart Contracts</li>
+          <li><strong>Core Contracts</strong>: Factory, Pool, and Tick math implementations</li>
+          <li><strong>Periphery Contracts</strong>: SwapRouter, NonfungiblePositionManager, and Quoters</li>
+        </ul>
+
+        <h2 id="documentation-organization">Documentation Organization</h2>
+        <p>The guides below cover three main categories of integration work:</p>
+
+        <div class="cards">
+          <a class="card" href="./guides/getting-started.html">
+            <div class="card-title">Setup</div>
+            <div class="card-desc">Integration setup and environment configuration for MST networks.</div>
+          </a>
+          <a class="card" href="./guides/swapping.html">
+            <div class="card-title">Swapping</div>
+            <div class="card-desc">Executing single-hop swaps directly in Solidity.</div>
+          </a>
+          <a class="card" href="./guides/managing-liquidity.html">
+            <div class="card-title">Liquidity Management</div>
+            <div class="card-desc">Minting positions, increasing/decreasing liquidity, and collecting fees via Solidity.
+            </div>
+          </a>
+          <a class="card" href="./guides/pool-data.html">
+            <div class="card-title">Data Access</div>
+            <div class="card-desc">Querying pool state, tick ranges, and active liquidity onchain.</div>
+          </a>
+        </div>
+
+        <h2 id="where-to-go-next">Where to Go Next</h2>
+        <p>New to Rapidex contracts? Start with <a href="./guides/getting-started.html">Getting Started</a> to learn how to connect to MST networks, then move on to the <a href="./guides/swapping.html">Swapping</a> guide.</p>
+
+        <div class="page-nav">
+          <a class="next" href="./guides/getting-started.html"><span class="dir">Next</span>Getting Started</a>
+        </div>
+      </main>
+
+      <aside class="toc">
+        <div class="toc-title">On this page</div>
+        <a href="#purpose">Purpose</a>
+        <a href="#key-resources">Key Resources</a>
+        <a href="#documentation-organization">Documentation Organization</a>
+        <a href="#where-to-go-next">Where to Go Next</a>
+      </aside>
+    </div>
+  </div>
+
+  <footer class="site-footer">
+    <span>&copy; 2026 Rapidex Labs. Documentation for the Rapidex v3 Smart Contracts.</span>
+    <div class="footer-links">
+      <a href="https://github.com/singhritik62/final-dex">GitHub</a>
+      <a href="https://discord.gg">Discord</a>
+      <a href="https://x.com">X</a>
+    </div>
+  </footer>
+
+  <script src="./assets/particles.js"></script>
+  <script src="./assets/theme.js"></script>
+  <script src="./assets/docs.js"></script>
+</body>
+
+</html>

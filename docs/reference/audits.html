@@ -1,0 +1,151 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8" />
+<meta name="viewport" content="width=device-width, initial-scale=1.0" />
+<title>Audits - Rapidex v3</title>
+<meta name="description" content="Security audit reports and bug bounty information for the Rapidex v3 smart contracts." />
+<link rel="preconnect" href="https://fonts.googleapis.com" />
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin />
+<link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700&display=swap" rel="stylesheet" />
+<link rel="stylesheet" href="../assets/styles.css" />
+<script>(function(){try{if(localStorage.getItem('rapidex-theme')==='light')document.documentElement.setAttribute('data-theme','light');}catch(e){}})();</script>
+</head>
+<body>
+
+<canvas id="particles-canvas"></canvas>
+
+<header class="site-header">
+  <div class="brand"><a href="../home.html" style="display:flex;align-items:center;"><img class="brand-logo" data-src-dark="../assets/Rapidex Logo White.png" data-src-light="../assets/Rapidex Logo Black.png" src="../assets/Rapidex Logo White.png" alt="Rapidex" style="height:50px;" /></a></div>
+  <nav>
+    <a href="../index.html" class="active">Docs</a>
+    <a href="../whitepaper.html">Whitepaper</a>
+    <a href="#">SDKs</a>
+  </nav>
+  <div class="header-actions">
+    <button class="theme-toggle" type="button" title="Toggle theme" aria-label="Toggle theme">
+      <svg class="icon-moon" fill="none" viewBox="0 0 24 24" stroke="currentColor" stroke-width="2"><path stroke-linecap="round" stroke-linejoin="round" d="M21 12.79A9 9 0 1111.21 3 7 7 0 0021 12.79z"/></svg>
+      <svg class="icon-sun" fill="none" viewBox="0 0 24 24" stroke="currentColor" stroke-width="2"><circle cx="12" cy="12" r="4"/><path stroke-linecap="round" d="M12 2v2M12 20v2M4.93 4.93l1.41 1.41M17.66 17.66l1.41 1.41M2 12h2M20 12h2M6.34 17.66l-1.41 1.41M19.07 4.93l-1.41 1.41"/></svg>
+    </button>
+    <a class="icon-link" href="https://github.com/singhritik62/final-dex" title="GitHub">GitHub</a>
+  </div>
+</header>
+
+<div class="shell">
+  <aside class="sidebar">
+    <div class="group">
+      <div class="group-title">Rapidex v3</div>
+      <a href="../index.html">Overview</a>
+    </div>
+    <div class="group">
+      <div class="group-title">Concepts</div>
+      <a href="../concepts/architecture.html">Architecture</a>
+      <a href="../concepts/unsupported-tokens.html">Unsupported Tokens</a>
+    </div>
+    <div class="group">
+      <div class="group-title">Guides</div>
+      <a href="../guides/getting-started.html">Getting Started</a>
+      <a href="../guides/swapping.html">Swapping</a>
+      <a href="../guides/managing-liquidity.html">Managing Liquidity</a>
+      <a href="../guides/pool-data.html">Fetching Pool Data</a>
+    </div>
+    <div class="group">
+      <div class="group-title">Reference</div>
+      <a href="./deployments.html">Deployments</a>
+      <a href="./audits.html" class="active">Audits</a>
+    </div>
+  </aside>
+
+  <div class="content-wrap">
+    <main class="content">
+      <h1>Audits</h1>
+      <p class="lede">Security is the top priority for Rapidex v3. All core and periphery contracts have been independently audited before deployment. Audit reports are published in full.</p>
+
+      <h2 id="core-audits">Core Contract Audits</h2>
+      <p>The Rapidex v3 Core contracts (Factory, Pool, and Pool Deployer) have undergone independent security reviews. Reports will be linked here upon publication.</p>
+
+      <table>
+        <thead>
+          <tr><th>Auditor</th><th>Scope</th><th>Date</th><th>Report</th></tr>
+        </thead>
+        <tbody>
+          <tr><td>TBA</td><td>v3-core</td><td>TBA</td><td>TBA</td></tr>
+        </tbody>
+      </table>
+
+      <h2 id="periphery-audits">Periphery Contract Audits</h2>
+      <p>The Rapidex v3 Periphery contracts (SwapRouter, NonfungiblePositionManager, Quoter, and associated libraries) have been reviewed separately given their distinct attack surface.</p>
+
+      <table>
+        <thead>
+          <tr><th>Auditor</th><th>Scope</th><th>Date</th><th>Report</th></tr>
+        </thead>
+        <tbody>
+          <tr><td>TBA</td><td>v3-periphery</td><td>TBA</td><td>TBA</td></tr>
+        </tbody>
+      </table>
+
+      <h2 id="bug-bounty">Bug Bounty</h2>
+      <p>Rapidex Labs operates a bug bounty program for responsible disclosure of security vulnerabilities in the deployed v3 contracts. Rewards are issued based on severity according to the CVSS scoring standard.</p>
+
+      <table>
+        <thead>
+          <tr><th>Severity</th><th>Max Reward</th></tr>
+        </thead>
+        <tbody>
+          <tr><td>Critical</td><td>TBA</td></tr>
+          <tr><td>High</td><td>TBA</td></tr>
+          <tr><td>Medium</td><td>TBA</td></tr>
+          <tr><td>Low</td><td>TBA</td></tr>
+        </tbody>
+      </table>
+
+      <div class="callout">
+        <span class="callout-title">Responsible Disclosure</span>
+        Do not publicly disclose a vulnerability before reporting it privately to the Rapidex Labs security team. Public disclosure before a patch is deployed puts user funds at risk and may disqualify the submission from the bounty program.
+      </div>
+
+      <h2 id="scope">Bounty Scope</h2>
+      <p>The following are in scope for the bug bounty program:</p>
+      <ul>
+        <li>All deployed Rapidex v3 Core contracts (Factory, Pool, PoolDeployer)</li>
+        <li>All deployed Rapidex v3 Periphery contracts (SwapRouter, NonfungiblePositionManager, QuoterV2, TickLens)</li>
+        <li>Periphery helper libraries (PoolAddress, CallbackValidation, TickMath)</li>
+      </ul>
+      <p>The following are out of scope:</p>
+      <ul>
+        <li>Third-party integrations or front-end interfaces</li>
+        <li>Theoretical attacks that require governance control or protocol admin keys</li>
+        <li>Issues already reported or known</li>
+        <li>Economic attacks that require &gt;$1M capital to execute profitably</li>
+      </ul>
+
+      <div class="page-nav">
+        <a class="prev" href="./deployments.html"><span class="dir">Previous</span>Deployments</a>
+      </div>
+    </main>
+
+    <aside class="toc">
+      <div class="toc-title">On this page</div>
+      <a href="#core-audits">Core Contract Audits</a>
+      <a href="#periphery-audits">Periphery Contract Audits</a>
+      <a href="#bug-bounty">Bug Bounty</a>
+      <a href="#scope">Bounty Scope</a>
+    </aside>
+  </div>
+</div>
+
+<footer class="site-footer">
+  <span>&copy; 2026 Rapidex Labs. Documentation for the Rapidex v3 Smart Contracts.</span>
+  <div class="footer-links">
+    <a href="https://github.com/singhritik62/final-dex">GitHub</a>
+    <a href="https://discord.gg">Discord</a>
+    <a href="https://x.com">X</a>
+  </div>
+</footer>
+
+<script src="../assets/particles.js"></script>
+<script src="../assets/theme.js"></script>
+<script src="../assets/docs.js"></script>
+</body>
+</html>

@@ -1,0 +1,182 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8" />
+<meta name="viewport" content="width=device-width, initial-scale=1.0" />
+<title>Fetching Pool Data - Rapidex v3</title>
+<link rel="preconnect" href="https://fonts.googleapis.com" />
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin />
+<link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700&display=swap" rel="stylesheet" />
+<link rel="stylesheet" href="../assets/styles.css" />
+<script>(function(){try{if(localStorage.getItem('rapidex-theme')==='light')document.documentElement.setAttribute('data-theme','light');}catch(e){}})();</script>
+</head>
+<body>
+
+<canvas id="particles-canvas"></canvas>
+
+<header class="site-header">
+  <div class="brand"><a href="../home.html" style="display:flex;align-items:center;"><img class="brand-logo" data-src-dark="../assets/Rapidex Logo White.png" data-src-light="../assets/Rapidex Logo Black.png" src="../assets/Rapidex Logo White.png" alt="Rapidex" style="height:50px;" /></a></div>
+  <nav>
+    <a href="../index.html" class="active">Docs</a>
+    <a href="../whitepaper.html">Whitepaper</a>
+    <a href="#">SDKs</a>
+  </nav>
+  <div class="header-actions">
+    <button class="theme-toggle" type="button" title="Toggle theme" aria-label="Toggle theme">
+      <svg class="icon-moon" fill="none" viewBox="0 0 24 24" stroke="currentColor" stroke-width="2"><path stroke-linecap="round" stroke-linejoin="round" d="M21 12.79A9 9 0 1111.21 3 7 7 0 0021 12.79z"/></svg>
+      <svg class="icon-sun" fill="none" viewBox="0 0 24 24" stroke="currentColor" stroke-width="2"><circle cx="12" cy="12" r="4"/><path stroke-linecap="round" d="M12 2v2M12 20v2M4.93 4.93l1.41 1.41M17.66 17.66l1.41 1.41M2 12h2M20 12h2M6.34 17.66l-1.41 1.41M19.07 4.93l-1.41 1.41"/></svg>
+    </button>
+    <a class="icon-link" href="https://github.com/singhritik62/final-dex" title="GitHub">GitHub</a>
+  </div>
+</header>
+
+<div class="shell">
+  <aside class="sidebar">
+    <div class="group">
+      <div class="group-title">Rapidex v3</div>
+      <a href="../index.html">Overview</a>
+    </div>
+    <div class="group">
+      <div class="group-title">Concepts</div>
+      <a href="../concepts/architecture.html">Architecture</a>
+      <a href="../concepts/unsupported-tokens.html">Unsupported Tokens</a>
+    </div>
+    <div class="group">
+      <div class="group-title">Guides</div>
+      <a href="./getting-started.html">Getting Started</a>
+      <a href="./swapping.html">Swapping</a>
+      <a href="./managing-liquidity.html">Managing Liquidity</a>
+      <a href="./pool-data.html" class="active">Fetching Pool Data</a>
+    </div>
+    <div class="group">
+      <div class="group-title">Reference</div>
+      <a href="../reference/deployments.html">Deployments</a>
+      <a href="../reference/audits.html">Audits</a>
+    </div>
+  </aside>
+
+  <div class="content-wrap">
+    <main class="content">
+      <h1>Fetching Pool Data</h1>
+      <p class="lede">Read pool state, active liquidity, and tick parameters directly from your smart contracts.</p>
+
+      <p>This guide explains how to fetch state and metadata directly from a Rapidex v3 pool contract in Solidity. It covers reading the primary pool variables, such as <code>slot0</code> and active <code>liquidity</code>, as well as tick-specific variables.</p>
+
+      <h2 id="pool-variables">Core Pool Variables</h2>
+      <p>Every Rapidex v3 pool maintains state variables related to its configuration, current pricing, and active liquidity. The most frequently read state is packed into a single storage slot called <code>slot0</code> to reduce gas costs during transactions.</p>
+
+      <h2 id="solidity-querier">Solidity Querier Example</h2>
+      <p>The following Solidity contract shows how to reference a pool and query its state parameters directly from another contract:</p>
+
+      <pre><span class="code-lang">solidity</span><code>// SPDX-License-Identifier: MIT
+pragma solidity ^0.8.24;
+
+import "@rapidex/v3-core/contracts/interfaces/IRapidexV3Pool.sol";
+
+contract PoolDataQuerier {
+    /// @notice Fetches the current slot0 state, liquidity, and token addresses of a pool
+    function getPoolState(address poolAddress)
+        external
+        view
+        returns (
+            uint160 sqrtPriceX96,
+            int24 tick,
+            uint128 liquidity,
+            address token0,
+            address token1,
+            uint24 fee
+        )
+    {
+        IRapidexV3Pool pool = IRapidexV3Pool(poolAddress);
+        
+        // Fetch current slot0 values (sqrtPriceX96, current tick, etc.)
+        (sqrtPriceX96, tick, , , , , ) = pool.slot0();
+        
+        // Fetch current active liquidity inside the active tick range
+        liquidity = pool.liquidity();
+        
+        // Fetch pool configuration details
+        token0 = pool.token0();
+        token1 = pool.token1();
+        fee = pool.fee();
+    }
+
+    /// @notice Fetch details for a specific tick index
+    function getTickData(address poolAddress, int24 tick)
+        external
+        view
+        returns (
+            uint128 liquidityGross,
+            int128 liquidityNet,
+            uint256 feeGrowthOutside0X128,
+            uint256 feeGrowthOutside1X128,
+            int56 tickCumulativeOutside,
+            uint256 secondsPerLiquidityOutsideX128,
+            uint32 secondsOutside,
+            bool initialized
+        )
+    {
+        // Query the ticks mapping in the pool
+        return IRapidexV3Pool(poolAddress).ticks(tick);
+    }
+}</code></pre>
+
+      <div class="callout">
+        <span class="callout-title">Read-only view calls</span>
+        Since these are <code>view</code> functions, calling them externally via JSON-RPC or from another view function does not consume gas.
+      </div>
+
+      <h2 id="parameters-and-outputs">Parameters and Outputs Reference</h2>
+
+      <h3>1. slot0</h3>
+      <p>Queries the primary state variables of the pool contract. Designed to return multiple values packed into one storage slot.</p>
+
+      <table>
+        <thead>
+          <tr><th>Output Parameter</th><th>Type</th><th>Description</th></tr>
+        </thead>
+        <tbody>
+          <tr><td><code>sqrtPriceX96</code></td><td>uint160</td><td>The square root of the pool's current price represented in Q64.96 format.</td></tr>
+          <tr><td><code>tick</code></td><td>int24</td><td>The current price tick index (integer representing log price $1.0001^t$).</td></tr>
+          <tr><td><code>observationIndex</code></td><td>uint16</td><td>Disabled. Internal oracle tracker (returns 0 or static default values).</td></tr>
+          <tr><td><code>observationCardinality</code></td><td>uint16</td><td>Disabled. Active oracle observations buffer length (returns 0 or static default values).</td></tr>
+          <tr><td><code>observationCardinalityNext</code></td><td>uint16</td><td>Disabled. Configured next oracle observations buffer length (returns 0 or static default values).</td></tr>
+          <tr><td><code>feeProtocol</code></td><td>uint8</td><td>The active protocol fee fraction allocated to RAPID token governance.</td></tr>
+          <tr><td><code>unlocked</code></td><td>bool</td><td>Re-entrancy lock status. <code>true</code> indicates the pool is unlocked and swaps can occur.</td></tr>
+        </tbody>
+      </table>
+
+      <h3>2. liquidity</h3>
+      <p>Queries the active liquidity units currently supported at the current tick index.</p>
+      
+      <p><strong>Output:</strong> <code>liquidity</code> (uint128) - The amount of virtual liquidity active in the pool range.</p>
+
+      <div class="page-nav">
+        <a class="prev" href="./managing-liquidity.html"><span class="dir">Previous</span>Managing Liquidity</a>
+        <a class="next" href="../reference/deployments.html"><span class="dir">Next</span>Deployments</a>
+      </div>
+    </main>
+
+    <aside class="toc">
+      <div class="toc-title">On this page</div>
+      <a href="#pool-variables">Core Pool Variables</a>
+      <a href="#solidity-querier">Solidity Querier Example</a>
+      <a href="#parameters-and-outputs">Parameters and Outputs Reference</a>
+    </aside>
+  </div>
+</div>
+
+<footer class="site-footer">
+  <span>&copy; 2026 Rapidex Labs. Documentation for the Rapidex v3 Smart Contracts.</span>
+  <div class="footer-links">
+    <a href="https://github.com/singhritik62/final-dex">GitHub</a>
+    <a href="https://discord.gg">Discord</a>
+    <a href="https://x.com">X</a>
+  </div>
+</footer>
+
+<script src="../assets/particles.js"></script>
+<script src="../assets/theme.js"></script>
+<script src="../assets/docs.js"></script>
+</body>
+</html>

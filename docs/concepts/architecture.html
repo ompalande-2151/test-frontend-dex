@@ -1,0 +1,173 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8" />
+<meta name="viewport" content="width=device-width, initial-scale=1.0" />
+<title>Architecture - Rapidex v3</title>
+<meta name="description" content="Understand the core and periphery contract architecture of Rapidex v3: Factory, Pools, SwapRouter, and NonfungiblePositionManager." />
+<link rel="preconnect" href="https://fonts.googleapis.com" />
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin />
+<link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700&display=swap" rel="stylesheet" />
+<link rel="stylesheet" href="../assets/styles.css" />
+<script>(function(){try{if(localStorage.getItem('rapidex-theme')==='light')document.documentElement.setAttribute('data-theme','light');}catch(e){}})();</script>
+</head>
+<body>
+
+<canvas id="particles-canvas"></canvas>
+
+<header class="site-header">
+  <div class="brand"><a href="../home.html" style="display:flex;align-items:center;"><img class="brand-logo" data-src-dark="../assets/Rapidex Logo White.png" data-src-light="../assets/Rapidex Logo Black.png" src="../assets/Rapidex Logo White.png" alt="Rapidex" style="height:50px;" /></a></div>
+  <nav>
+    <a href="../index.html" class="active">Docs</a>
+    <a href="../whitepaper.html">Whitepaper</a>
+    <a href="#">SDKs</a>
+  </nav>
+  <div class="header-actions">
+    <button class="theme-toggle" type="button" title="Toggle theme" aria-label="Toggle theme">
+      <svg class="icon-moon" fill="none" viewBox="0 0 24 24" stroke="currentColor" stroke-width="2"><path stroke-linecap="round" stroke-linejoin="round" d="M21 12.79A9 9 0 1111.21 3 7 7 0 0021 12.79z"/></svg>
+      <svg class="icon-sun" fill="none" viewBox="0 0 24 24" stroke="currentColor" stroke-width="2"><circle cx="12" cy="12" r="4"/><path stroke-linecap="round" d="M12 2v2M12 20v2M4.93 4.93l1.41 1.41M17.66 17.66l1.41 1.41M2 12h2M20 12h2M6.34 17.66l-1.41 1.41M19.07 4.93l-1.41 1.41"/></svg>
+    </button>
+    <a class="icon-link" href="https://github.com/singhritik62/final-dex" title="GitHub">GitHub</a>
+  </div>
+</header>
+
+<div class="shell">
+  <aside class="sidebar">
+    <div class="group">
+      <div class="group-title">Rapidex v3</div>
+      <a href="../index.html">Overview</a>
+    </div>
+    <div class="group">
+      <div class="group-title">Concepts</div>
+      <a href="./architecture.html" class="active">Architecture</a>
+      <a href="./unsupported-tokens.html">Unsupported Tokens</a>
+    </div>
+    <div class="group">
+      <div class="group-title">Guides</div>
+      <a href="../guides/getting-started.html">Getting Started</a>
+      <a href="../guides/swapping.html">Swapping</a>
+      <a href="../guides/managing-liquidity.html">Managing Liquidity</a>
+      <a href="../guides/pool-data.html">Fetching Pool Data</a>
+    </div>
+    <div class="group">
+      <div class="group-title">Reference</div>
+      <a href="../reference/deployments.html">Deployments</a>
+      <a href="../reference/audits.html">Audits</a>
+    </div>
+  </aside>
+
+  <div class="content-wrap">
+    <main class="content">
+      <h1>Architecture</h1>
+      <p class="lede">Rapidex v3 is a binary smart contract system split into two layers (Core and Periphery), each with distinct responsibilities and security boundaries.</p>
+
+      <p>Understanding this separation is important before integrating with the protocol. Core contracts define the invariants and hold funds. Periphery contracts add convenience and safety for callers, but they hold no special privileges over Core.</p>
+
+      <h2 id="core-vs-periphery">Core vs Periphery</h2>
+      <p>The protocol is deliberately divided into two layers:</p>
+      <ul>
+        <li><strong>Core</strong>: minimal, gas-optimised contracts that enforce the AMM invariants and store all funds. They are designed to be as simple as possible: correctness is prioritised over code clarity.</li>
+        <li><strong>Periphery</strong>: higher-level contracts that wrap Core to provide a safer, more ergonomic interface for end-users and integrators. Periphery contracts never hold protocol funds on a permanent basis.</li>
+      </ul>
+      <p>Because periphery contracts have no elevated access to core contracts, you can always interact with Core directly if needed: the periphery is purely optional convenience.</p>
+
+      <h2 id="core-contracts">Core Contracts</h2>
+
+      <h3 id="factory">Factory</h3>
+      <p>The <code>RapidexV3Factory</code> is the registry for all pools. It deploys new pool contracts and tracks their addresses. Key points:</p>
+      <ul>
+        <li>Multiple pools can exist for the same token pair: one per fee tier (0.05%, 0.30%, 1.00%).</li>
+        <li>Pool addresses are deterministic: given <code>token0</code>, <code>token1</code>, and <code>fee</code>, the factory's <code>getPool()</code> function always returns the same address.</li>
+        <li>Anyone can create a pool for a new token pair by calling <code>createPool()</code> on the factory.</li>
+      </ul>
+      <pre><span class="code-lang">solidity</span><code>// Look up an existing pool address
+address pool = IRapidexV3Factory(factory).getPool(token0, token1, fee);</code></pre>
+
+      <h3 id="pools">Pools</h3>
+      <p>Each <code>RapidexV3Pool</code> is an independent AMM contract for a specific token pair and fee tier. Pools are the heart of the protocol, where they:</p>
+      <ul>
+        <li>Hold all liquidity funds (token0 and token1 balances).</li>
+        <li>Execute swaps and update the concentrated liquidity curve.</li>
+        <li>Accumulate fee growth per unit of liquidity.</li>
+      </ul>
+      <p>Pool state is primarily packed into <code>slot0</code> to minimise storage reads: it holds the current <code>sqrtPriceX96</code>, the current <code>tick</code>, and protocol fee settings.</p>
+
+      <h3 id="pool-deployer">Pool Deployer</h3>
+      <p>The <code>RapidexV3PoolDeployer</code> is a small helper the factory delegates to when creating new pools. It exists to sidestep Solidity constructor argument limitations and enable the deterministic <code>CREATE2</code> deployment scheme the factory relies on for address prediction.</p>
+
+      <h2 id="periphery-contracts">Periphery Contracts</h2>
+
+      <h3 id="swap-router">SwapRouter</h3>
+      <p>The <code>SwapRouter</code> is the standard entry point for executing token swaps. It supports <strong>single-hop swaps</strong> routed through one pool (using <code>exactInputSingle</code> or <code>exactOutputSingle</code>).</p>
+      <p>The router pulls tokens from the caller, sends them to the pool, and enforces slippage limits before returning output tokens. It does not hold funds between calls.</p>
+
+      <h3 id="nonfungible-position-manager">NonfungiblePositionManager</h3>
+      <p>Liquidity positions in Rapidex v3 are represented as ERC-721 NFTs. The <code>NonfungiblePositionManager</code> wraps the core pool's low-level <code>mint</code>/<code>burn</code>/<code>collect</code> functions and issues an NFT to track each position. Through this contract you can:</p>
+      <ul>
+        <li>Mint new positions (<code>mint()</code>)</li>
+        <li>Increase liquidity in an existing position (<code>increaseLiquidity()</code>)</li>
+        <li>Decrease liquidity and withdraw tokens (<code>decreaseLiquidity()</code>)</li>
+        <li>Collect accrued fees (<code>collect()</code>)</li>
+        <li>Burn a fully-withdrawn position NFT (<code>burn()</code>)</li>
+      </ul>
+
+      <h3 id="periphery-libraries">Periphery Libraries</h3>
+      <p>The periphery ships a set of helper libraries used internally and available for integrators:</p>
+      <ul>
+        <li><strong>PoolAddress</strong>: computes the deterministic pool address from factory, token pair, and fee tier without an on-chain call.</li>
+        <li><strong>CallbackValidation</strong>: verifies that callbacks (swap, mint) originate from a legitimate pool, preventing spoofing attacks.</li>
+        <li><strong>TransferHelper</strong>: safe ERC-20 transfer wrappers that revert on non-standard return values.</li>
+        <li><strong>LowGasSafeMath</strong>: overflow-checked arithmetic optimised for low gas usage.</li>
+        <li><strong>TickMath</strong>: converts between tick indices and <code>sqrtPriceX96</code> values.</li>
+      </ul>
+
+      <h2 id="design-philosophy">Design Philosophy</h2>
+      <p>The strict Core/Periphery boundary means:</p>
+      <ul>
+        <li>Core contracts are immutable and cannot be upgraded: their correctness must be guaranteed at deployment.</li>
+        <li>Periphery contracts can be upgraded or replaced without touching Core, allowing the user-facing interface to evolve safely.</li>
+        <li>External integrators should always interact via periphery contracts unless they have a specific reason to call Core directly (e.g. custom swap callback handling).</li>
+        <li>Core contracts use a callback pattern: rather than pulling tokens directly, they call back into the caller's contract at key points (e.g. <code>uniswapV3SwapCallback</code> or <code>uniswapV3MintCallback</code>). This gives integrators full control while Core enforces the final balance invariants.</li>
+      </ul>
+
+      <div class="callout">
+        <span class="callout-title">Callback Validation</span>
+        Always use <code>CallbackValidation.verifyCallback()</code> in any contract that implements a Core callback. Without it, an attacker can spoof a callback from an arbitrary address and drain your contract.
+      </div>
+
+      <div class="page-nav">
+        <a class="prev" href="../index.html"><span class="dir">Previous</span>Overview</a>
+        <a class="next" href="./unsupported-tokens.html"><span class="dir">Next</span>Unsupported Tokens</a>
+      </div>
+    </main>
+
+    <aside class="toc">
+      <div class="toc-title">On this page</div>
+      <a href="#core-vs-periphery">Core vs Periphery</a>
+      <a href="#core-contracts">Core Contracts</a>
+      <a href="#factory">Factory</a>
+      <a href="#pools">Pools</a>
+      <a href="#pool-deployer">Pool Deployer</a>
+      <a href="#periphery-contracts">Periphery Contracts</a>
+      <a href="#swap-router">SwapRouter</a>
+      <a href="#nonfungible-position-manager">NonfungiblePositionManager</a>
+      <a href="#periphery-libraries">Periphery Libraries</a>
+      <a href="#design-philosophy">Design Philosophy</a>
+    </aside>
+  </div>
+</div>
+
+<footer class="site-footer">
+  <span>&copy; 2026 Rapidex Labs. Documentation for the Rapidex v3 Smart Contracts.</span>
+  <div class="footer-links">
+    <a href="https://github.com/singhritik62/final-dex">GitHub</a>
+    <a href="https://discord.gg">Discord</a>
+    <a href="https://x.com">X</a>
+  </div>
+</footer>
+
+<script src="../assets/particles.js"></script>
+<script src="../assets/theme.js"></script>
+<script src="../assets/docs.js"></script>
+</body>
+</html>

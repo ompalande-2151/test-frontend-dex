@@ -1,0 +1,121 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8" />
+<meta name="viewport" content="width=device-width, initial-scale=1.0" />
+<title>Getting Started - Rapidex v3</title>
+<link rel="preconnect" href="https://fonts.googleapis.com" />
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin />
+<link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700&display=swap" rel="stylesheet" />
+<link rel="stylesheet" href="../assets/styles.css" />
+<script>(function(){try{if(localStorage.getItem('rapidex-theme')==='light')document.documentElement.setAttribute('data-theme','light');}catch(e){}})();</script>
+</head>
+<body>
+
+<canvas id="particles-canvas"></canvas>
+
+<header class="site-header">
+  <div class="brand"><a href="../home.html" style="display:flex;align-items:center;"><img class="brand-logo" data-src-dark="../assets/Rapidex Logo White.png" data-src-light="../assets/Rapidex Logo Black.png" src="../assets/Rapidex Logo White.png" alt="Rapidex" style="height:50px;" /></a></div>
+  <nav>
+    <a href="../index.html" class="active">Docs</a>
+    <a href="../whitepaper.html">Whitepaper</a>
+    <a href="#">SDKs</a>
+  </nav>
+  <div class="header-actions">
+    <button class="theme-toggle" type="button" title="Toggle theme" aria-label="Toggle theme">
+      <svg class="icon-moon" fill="none" viewBox="0 0 24 24" stroke="currentColor" stroke-width="2"><path stroke-linecap="round" stroke-linejoin="round" d="M21 12.79A9 9 0 1111.21 3 7 7 0 0021 12.79z"/></svg>
+      <svg class="icon-sun" fill="none" viewBox="0 0 24 24" stroke="currentColor" stroke-width="2"><circle cx="12" cy="12" r="4"/><path stroke-linecap="round" d="M12 2v2M12 20v2M4.93 4.93l1.41 1.41M17.66 17.66l1.41 1.41M2 12h2M20 12h2M6.34 17.66l-1.41 1.41M19.07 4.93l-1.41 1.41"/></svg>
+    </button>
+    <a class="icon-link" href="https://github.com/singhritik62/final-dex" title="GitHub">GitHub</a>
+  </div>
+</header>
+
+<div class="shell">
+  <aside class="sidebar">
+    <div class="group">
+      <div class="group-title">Rapidex v3</div>
+      <a href="../index.html">Overview</a>
+    </div>
+    <div class="group">
+      <div class="group-title">Concepts</div>
+      <a href="../concepts/architecture.html">Architecture</a>
+      <a href="../concepts/unsupported-tokens.html">Unsupported Tokens</a>
+    </div>
+    <div class="group">
+      <div class="group-title">Guides</div>
+      <a href="./getting-started.html" class="active">Getting Started</a>
+      <a href="./swapping.html">Swapping</a>
+      <a href="./managing-liquidity.html">Managing Liquidity</a>
+      <a href="./pool-data.html">Fetching Pool Data</a>
+    </div>
+    <div class="group">
+      <div class="group-title">Reference</div>
+      <a href="../reference/deployments.html">Deployments</a>
+      <a href="../reference/audits.html">Audits</a>
+    </div>
+  </aside>
+
+  <div class="content-wrap">
+    <main class="content">
+      <h1>Getting Started</h1>
+      <p class="lede">Configure your development environment and smart contracts to interact directly with the Rapidex v3 protocol on the MST Network.</p>
+
+      <h2 id="mst-networks">Connecting to MST Networks</h2>
+      <p>To interact with Rapidex v3, your decentralized application or smart contracts must communicate with a node on the MST network. Developers can deploy and test their contracts on the MST Testnet before migrating to Mainnet.</p>
+      
+      <table>
+        <thead>
+          <tr><th>Network Parameter</th><th>MST Testnet Value</th></tr>
+        </thead>
+        <tbody>
+          <tr><td><strong>RPC URL</strong></td><td><code>https://testnetrpc.mstblockchain.com</code></td></tr>
+          <tr><td><strong>Chain ID</strong></td><td><code>91562037</code></td></tr>
+          <tr><td><strong>Block Explorer</strong></td><td><a href="https://testnet.mstscan.com" target="_blank">testnet.mstscan.com</a></td></tr>
+        </tbody>
+      </table>
+
+      <h2 id="importing-contracts">Importing Interfaces</h2>
+      <p>To write Solidity smart contracts that interact with the protocol, import the interface definitions directly into your project files. This allows your compiler to verify the function signatures of the deployed Rapidex contracts:</p>
+      <pre><span class="code-lang">solidity</span><code>import "@rapidex/v3-periphery/contracts/interfaces/ISwapRouter.sol";
+import "@rapidex/v3-periphery/contracts/interfaces/INonfungiblePositionManager.sol";
+import "@rapidex/v3-core/contracts/interfaces/IRapidexV3Pool.sol";</code></pre>
+      
+      <p>You can reference the exact deployed addresses for the SwapRouter, Factory, and NonfungiblePositionManager on the <a href="../reference/deployments.html">Deployments</a> page.</p>
+
+      <h2 id="where-to-go-next">Where to Go Next</h2>
+      <p>With your environment configured, proceed to:</p>
+      <ul>
+        <li><a href="./swapping.html">Swapping</a>: executing single-hop trades</li>
+        <li><a href="./managing-liquidity.html">Managing Liquidity</a>: creating concentrated positions</li>
+        <li><a href="./pool-data.html">Fetching Pool Data</a>: reading active ticks and slot0</li>
+      </ul>
+
+      <div class="page-nav">
+        <a class="prev" href="../index.html"><span class="dir">Previous</span>Overview</a>
+        <a class="next" href="./swapping.html"><span class="dir">Next</span>Swapping</a>
+      </div>
+    </main>
+
+    <aside class="toc">
+      <div class="toc-title">On this page</div>
+      <a href="#mst-networks">Connecting to MST Networks</a>
+      <a href="#importing-contracts">Importing Interfaces</a>
+      <a href="#where-to-go-next">Where to Go Next</a>
+    </aside>
+  </div>
+</div>
+
+<footer class="site-footer">
+  <span>&copy; 2026 Rapidex Labs. Documentation for the Rapidex v3 Smart Contracts.</span>
+  <div class="footer-links">
+    <a href="https://github.com/singhritik62/final-dex">GitHub</a>
+    <a href="https://discord.gg">Discord</a>
+    <a href="https://x.com">X</a>
+  </div>
+</footer>
+
+<script src="../assets/particles.js"></script>
+<script src="../assets/theme.js"></script>
+<script src="../assets/docs.js"></script>
+</body>
+</html>

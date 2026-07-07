@@ -1,0 +1,142 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8" />
+<meta name="viewport" content="width=device-width, initial-scale=1.0" />
+<title>Deployments - Rapidex v3</title>
+<meta name="description" content="Official Rapidex v3 contract deployment addresses across all supported chains." />
+<link rel="preconnect" href="https://fonts.googleapis.com" />
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin />
+<link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700&display=swap" rel="stylesheet" />
+<link rel="stylesheet" href="../assets/styles.css" />
+<script>(function(){try{if(localStorage.getItem('rapidex-theme')==='light')document.documentElement.setAttribute('data-theme','light');}catch(e){}})();</script>
+</head>
+<body>
+
+<canvas id="particles-canvas"></canvas>
+
+<header class="site-header">
+  <div class="brand"><a href="../home.html" style="display:flex;align-items:center;"><img class="brand-logo" data-src-dark="../assets/Rapidex Logo White.png" data-src-light="../assets/Rapidex Logo Black.png" src="../assets/Rapidex Logo White.png" alt="Rapidex" style="height:50px;" /></a></div>
+  <nav>
+    <a href="../index.html" class="active">Docs</a>
+    <a href="../whitepaper.html">Whitepaper</a>
+    <a href="#">SDKs</a>
+  </nav>
+  <div class="header-actions">
+    <button class="theme-toggle" type="button" title="Toggle theme" aria-label="Toggle theme">
+      <svg class="icon-moon" fill="none" viewBox="0 0 24 24" stroke="currentColor" stroke-width="2"><path stroke-linecap="round" stroke-linejoin="round" d="M21 12.79A9 9 0 1111.21 3 7 7 0 0021 12.79z"/></svg>
+      <svg class="icon-sun" fill="none" viewBox="0 0 24 24" stroke="currentColor" stroke-width="2"><circle cx="12" cy="12" r="4"/><path stroke-linecap="round" d="M12 2v2M12 20v2M4.93 4.93l1.41 1.41M17.66 17.66l1.41 1.41M2 12h2M20 12h2M6.34 17.66l-1.41 1.41M19.07 4.93l-1.41 1.41"/></svg>
+    </button>
+    <a class="icon-link" href="https://github.com/singhritik62/final-dex" title="GitHub">GitHub</a>
+  </div>
+</header>
+
+<div class="shell">
+  <aside class="sidebar">
+    <div class="group">
+      <div class="group-title">Rapidex v3</div>
+      <a href="../index.html">Overview</a>
+    </div>
+    <div class="group">
+      <div class="group-title">Concepts</div>
+      <a href="../concepts/architecture.html">Architecture</a>
+      <a href="../concepts/unsupported-tokens.html">Unsupported Tokens</a>
+    </div>
+    <div class="group">
+      <div class="group-title">Guides</div>
+      <a href="./getting-started.html">Getting Started</a>
+      <a href="../guides/swapping.html">Swapping</a>
+      <a href="../guides/managing-liquidity.html">Managing Liquidity</a>
+      <a href="../guides/pool-data.html">Fetching Pool Data</a>
+    </div>
+    <div class="group">
+      <div class="group-title">Reference</div>
+      <a href="./deployments.html" class="active">Deployments</a>
+      <a href="./audits.html">Audits</a>
+    </div>
+  </aside>
+
+  <div class="content-wrap">
+    <main class="content">
+      <h1>Deployments</h1>
+      <p class="lede">Official Rapidex v3 contract deployment addresses across supported networks. Always verify contract configurations before executing trades.</p>
+
+      <div class="callout warning">
+        <span class="callout-title">Verify Before Use</span>
+        Contract addresses differ per chain. Cross-check every address against block explorers before integrating. Using the wrong address may result in permanent loss of funds.
+      </div>
+
+      <h2 id="mst-testnet">MST Testnet</h2>
+      <p>The Rapidex v3 protocol is fully operational and verified on the MST Testnet (Chain ID: <code>91562037</code>).</p>
+      <table>
+        <thead>
+          <tr><th>Contract</th><th>Address</th><th>Description</th></tr>
+        </thead>
+        <tbody>
+          <tr><td><strong>WMST (Wrapped MST)</strong></td><td><code>0xB93ad291BD259Ed8d5f8efe93aA6811f901A967D</code></td><td>Canonical native currency wrapper.</td></tr>
+          <tr><td><strong>USDC (Mock token)</strong></td><td><code>0xa6189DAeB88A24c83192952AC9edAf383BA62D25</code></td><td>USDC test asset (18 decimals).</td></tr>
+          <tr><td><strong>RapidexV3Factory</strong></td><td><code>0x31459928076f879e5a7934FeE90D00952fA53Ba5</code></td><td>AMM registry and pool deployer.</td></tr>
+          <tr><td><strong>NonfungiblePositionManager</strong></td><td><code>0xB5eC969004FFBD7b959d8C8Aefd8633C90451e9a</code></td><td>Concentrated LP positions NFT manager.</td></tr>
+          <tr><td><strong>SwapRouter</strong></td><td><code>0xBC20dA0112a045aDaBfd08b26622900c706E1E97</code></td><td>Router for executing single-hop swaps.</td></tr>
+          <tr><td><strong>QuoterV2</strong></td><td><code>0x9e20b0D82f69B8406bd32adF9863Ef3A8d41283c</code></td><td>Swapping spot quote estimation helper.</td></tr>
+        </tbody>
+      </table>
+
+      <h2 id="mst-mainnet">MST Mainnet</h2>
+      <p>Core contracts are scheduled for deployment to the MST Mainnet. Addresses will be updated here post-broadcast validation.</p>
+      <table>
+        <thead>
+          <tr><th>Contract</th><th>Address</th><th>Description</th></tr>
+        </thead>
+        <tbody>
+          <tr><td><strong>WMST (Wrapped MST)</strong></td><td><code>TBA</code></td><td>Canonical native currency wrapper.</td></tr>
+          <tr><td><strong>USDC</strong></td><td><code>TBA</code></td><td>Bridged USDC token contract.</td></tr>
+          <tr><td><strong>RapidexV3Factory</strong></td><td><code>TBA</code></td><td>AMM registry and pool deployer.</td></tr>
+          <tr><td><strong>NonfungiblePositionManager</strong></td><td><code>TBA</code></td><td>Concentrated LP positions NFT manager.</td></tr>
+          <tr><td><strong>SwapRouter</strong></td><td><code>TBA</code></td><td>Router for executing single-hop swaps.</td></tr>
+          <tr><td><strong>QuoterV2</strong></td><td><code>TBA</code></td><td>Swapping spot quote estimation helper.</td></tr>
+        </tbody>
+      </table>
+
+      <h2 id="fee-tiers">Fee Tiers</h2>
+      <p>Rapidex v3 pools are deployed at one of three fee tiers. The same token pair can have up to three separate pools:</p>
+      <table>
+        <thead>
+          <tr><th>Fee Tier</th><th>Tick Spacing</th><th>Best For</th></tr>
+        </thead>
+        <tbody>
+          <tr><td>0.05% (500)</td><td>10</td><td>Stablecoin pairs (e.g. USDC/USDT-equivalents)</td></tr>
+          <tr><td>0.30% (3000)</td><td>60</td><td>Standard volatile pairs (e.g. MST/USDC)</td></tr>
+          <tr><td>1.00% (10000)</td><td>200</td><td>Exotic or highly volatile pairs (e.g. MST/RAPID)</td></tr>
+        </tbody>
+      </table>
+
+      <div class="page-nav">
+        <a class="prev" href="../guides/pool-data.html"><span class="dir">Previous</span>Fetching Pool Data</a>
+        <a class="next" href="./audits.html"><span class="dir">Next</span>Audits</a>
+      </div>
+    </main>
+
+    <aside class="toc">
+      <div class="toc-title">On this page</div>
+      <a href="#mst-testnet">MST Testnet</a>
+      <a href="#mst-mainnet">MST Mainnet</a>
+      <a href="#fee-tiers">Fee Tiers</a>
+    </aside>
+  </div>
+</div>
+
+<footer class="site-footer">
+  <span>&copy; 2026 Rapidex Labs. Documentation for the Rapidex v3 Smart Contracts.</span>
+  <div class="footer-links">
+    <a href="https://github.com/singhritik62/final-dex">GitHub</a>
+    <a href="https://discord.gg">Discord</a>
+    <a href="https://x.com">X</a>
+  </div>
+</footer>
+
+<script src="../assets/particles.js"></script>
+<script src="../assets/theme.js"></script>
+<script src="../assets/docs.js"></script>
+</body>
+</html>
