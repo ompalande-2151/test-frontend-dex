@@ -108,8 +108,8 @@ function Navigation() {
 
 
         <div className={`absolute inset-0 rounded-[32px] border backdrop-blur-[24px] transition-all duration-500 flex items-center justify-between px-6
-          ${isDark 
-            ? "border-[rgba(255,255,255,0.08)] bg-[rgba(20,20,25,0.35)] shadow-[0_8px_32px_rgba(0,0,0,0.35),inset_0_1px_0_rgba(255,255,255,0.08)] hover:backdrop-blur-[32px]" 
+          ${isDark
+            ? "border-[rgba(255,255,255,0.08)] bg-[rgba(20,20,25,0.35)] shadow-[0_8px_32px_rgba(0,0,0,0.35),inset_0_1px_0_rgba(255,255,255,0.08)] hover:backdrop-blur-[32px]"
             : "border-zinc-200/80 bg-white/75 shadow-[0_8px_32px_rgba(0,0,0,0.08)] hover:bg-white/85 hover:backdrop-blur-[32px]"}`}
         >
 
@@ -172,9 +172,9 @@ function Navigation() {
                     key={link.to!}
                     to={link.to!}
                     className={`font-medium text-[15px] transition-all duration-300 inline-block hover:-translate-y-[1px]
-                    ${isActive 
-                      ? (isDark ? "text-white drop-shadow-[0_0_8px_rgba(255,255,255,0.4)]" : "text-black font-semibold") 
-                      : (isDark ? "text-[rgba(255,255,255,0.65)] hover:text-white" : "text-zinc-600 hover:text-black")}`}
+                    ${isActive
+                        ? (isDark ? "text-white drop-shadow-[0_0_8px_rgba(255,255,255,0.4)]" : "text-black font-semibold")
+                        : (isDark ? "text-[rgba(255,255,255,0.65)] hover:text-white" : "text-zinc-600 hover:text-black")}`}
                   >
                     {link.label}
                   </Link>
@@ -192,13 +192,13 @@ function Navigation() {
                   className={`hidden lg:inline-block font-medium text-[15px] transition-all duration-300 hover:-translate-y-[1px] mr-4
                     ${isDark ? "text-[rgba(255,255,255,0.65)] hover:text-white" : "text-zinc-600 hover:text-black"}`}
                 >
-                  Devlopers's doc
+                  Developers
                 </a>
                 <Link to="/swap">
-                  <button 
+                  <button
                     className={`font-medium rounded-[18px] px-8 py-3 hover:scale-[1.03] transition-all duration-300 flex items-center justify-center text-[15px]
-                      ${isDark 
-                        ? "bg-white text-black shadow-[0_8px_24px_rgba(255,255,255,0.15)] hover:shadow-[0_8px_32px_rgba(255,255,255,0.3)]" 
+                      ${isDark
+                        ? "bg-white text-black shadow-[0_8px_24px_rgba(255,255,255,0.15)] hover:shadow-[0_8px_32px_rgba(255,255,255,0.3)]"
                         : "bg-zinc-950 text-white shadow-[0_8px_24px_rgba(0,0,0,0.08)] hover:shadow-[0_8px_32px_rgba(0,0,0,0.15)]"}`}
                   >
                     Launch App
@@ -211,8 +211,8 @@ function Navigation() {
                 <button
                   onClick={handleWalletClick}
                   className={`font-medium rounded-[18px] px-8 py-3 hover:scale-[1.03] transition-all duration-300 flex items-center justify-center gap-2 text-[15px]
-                    ${isDark 
-                      ? "bg-white text-black shadow-[0_8px_24px_rgba(255,255,255,0.15)] hover:shadow-[0_8px_32px_rgba(255,255,255,0.3)]" 
+                    ${isDark
+                      ? "bg-white text-black shadow-[0_8px_24px_rgba(255,255,255,0.15)] hover:shadow-[0_8px_32px_rgba(255,255,255,0.3)]"
                       : "bg-zinc-950 text-white shadow-[0_8px_24px_rgba(0,0,0,0.08)] hover:shadow-[0_8px_32px_rgba(0,0,0,0.15)]"}`}
                 >
                   {isConnected && address ? (
@@ -307,8 +307,8 @@ function Navigation() {
               <button
                 onClick={toggleTheme}
                 className={`flex h-10 w-10 items-center justify-center rounded-full transition-colors focus:outline-none border
-                  ${isDark 
-                    ? "bg-white/5 border-white/10 text-[rgba(255,255,255,0.65)] hover:text-white hover:bg-white/10" 
+                  ${isDark
+                    ? "bg-white/5 border-white/10 text-[rgba(255,255,255,0.65)] hover:text-white hover:bg-white/10"
                     : "bg-black/5 border-black/10 text-zinc-600 hover:text-zinc-950 hover:bg-black/10"}`}
                 aria-label="Toggle theme"
               >
@@ -319,8 +319,8 @@ function Navigation() {
             <button
               onClick={() => setIsOpen(!isOpen)}
               className={`lg:hidden flex h-10 w-10 items-center justify-center rounded-full transition-colors focus:outline-none border
-                ${isDark 
-                  ? "bg-white/5 border-white/10 text-[rgba(255,255,255,0.65)] hover:text-white hover:bg-white/10" 
+                ${isDark
+                  ? "bg-white/5 border-white/10 text-[rgba(255,255,255,0.65)] hover:text-white hover:bg-white/10"
                   : "bg-black/5 border-black/10 text-zinc-600 hover:text-zinc-950 hover:bg-black/10"}`}
               aria-label="Toggle navigation menu"
             >
