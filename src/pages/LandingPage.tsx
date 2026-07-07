@@ -8,8 +8,15 @@ import Footer from "../components/landing/Footer";
 import { useThemeStore } from "../store/themeStore";
 
 export default function LandingPage() {
-  const { theme } = useThemeStore();
+  const { theme, setTheme } = useThemeStore();
   const isDark = theme === "dark";
+
+  // Force default theme ("dark") on landing page
+  useEffect(() => {
+    if (theme !== "dark") {
+      setTheme("dark");
+    }
+  }, [theme, setTheme]);
 
   // Sync page metadata titles for SEO and premium feel
   useEffect(() => {

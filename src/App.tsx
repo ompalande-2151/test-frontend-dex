@@ -105,14 +105,13 @@ function Navigation() {
       className="fixed top-6 inset-x-0 z-50 w-[85%] max-w-[1200px] mx-auto"
     >
       <div className="relative w-full h-[76px]">
-        {/* Large blurred radial lights behind the navbar */}
-        <div className="absolute inset-0 z-[-1] overflow-hidden rounded-[32px] pointer-events-none">
-          <div className="absolute top-1/2 left-1/4 -translate-y-1/2 w-32 h-32 bg-cyan-500/30 rounded-full blur-[40px]" />
-          <div className="absolute top-1/2 left-1/2 -translate-y-1/2 -translate-x-1/2 w-40 h-40 bg-blue-500/30 rounded-full blur-[40px]" />
-          <div className="absolute top-1/2 right-1/4 -translate-y-1/2 w-32 h-32 bg-[rgba(154,205,50,0.3)] rounded-full blur-[40px]" />
-        </div>
 
-        <div className="absolute inset-0 rounded-[32px] border border-[rgba(255,255,255,0.08)] bg-[rgba(20,20,25,0.35)] backdrop-blur-[24px] shadow-[0_8px_32px_rgba(0,0,0,0.35),inset_0_1px_0_rgba(255,255,255,0.08)] hover:backdrop-blur-[32px] transition-all duration-500 flex items-center justify-between px-6" >
+
+        <div className={`absolute inset-0 rounded-[32px] border backdrop-blur-[24px] transition-all duration-500 flex items-center justify-between px-6
+          ${isDark 
+            ? "border-[rgba(255,255,255,0.08)] bg-[rgba(20,20,25,0.35)] shadow-[0_8px_32px_rgba(0,0,0,0.35),inset_0_1px_0_rgba(255,255,255,0.08)] hover:backdrop-blur-[32px]" 
+            : "border-zinc-200/80 bg-white/75 shadow-[0_8px_32px_rgba(0,0,0,0.08)] hover:bg-white/85 hover:backdrop-blur-[32px]"}`}
+        >
 
           {/* Logo */}
           <div className="flex items-center gap-3">
@@ -134,16 +133,19 @@ function Navigation() {
                   return (
                     <div key={link.label} className="relative group py-6 -my-6">
                       <button
-                        className={`font-medium text-[15px] transition-all duration-300 inline-block group-hover:-translate-y-[1px] text-[rgba(255,255,255,0.65)] group-hover:text-white flex items-center gap-1`}
+                        className={`font-medium text-[15px] transition-all duration-300 inline-block group-hover:-translate-y-[1px] flex items-center gap-1
+                          ${isDark ? "text-[rgba(255,255,255,0.65)] group-hover:text-white" : "text-zinc-600 group-hover:text-black"}`}
                       >
                         {link.label} <ChevronDown size={14} className="opacity-70 group-hover:opacity-100 transition-opacity" />
                       </button>
-                      <div className="absolute top-full left-1/2 -translate-x-1/2 mt-3 w-48 rounded-[20px] border border-zinc-800/80 bg-zinc-950/95 shadow-[0_15px_40px_rgba(0,0,0,0.6)] backdrop-blur-2xl opacity-0 invisible group-hover:opacity-100 group-hover:visible transition-all duration-300 transform translate-y-2 group-hover:translate-y-0 overflow-hidden flex flex-col p-1.5 z-50">
+                      <div className={`absolute top-full left-1/2 -translate-x-1/2 mt-3 w-48 rounded-[20px] border shadow-[0_15px_40px_rgba(0,0,0,0.15)] backdrop-blur-2xl opacity-0 invisible group-hover:opacity-100 group-hover:visible transition-all duration-300 transform translate-y-2 group-hover:translate-y-0 overflow-hidden flex flex-col p-1.5 z-50
+                        ${isDark ? "border-zinc-800/80 bg-zinc-950/95 shadow-black/60" : "border-zinc-200 bg-white/95 shadow-slate-200/50"}`}>
                         {link.subLinks.map(subLink => (
                           <Link
                             key={subLink.to}
                             to={subLink.to}
-                            className="group/item flex items-center justify-between px-3.5 py-2.5 rounded-xl text-[13.5px] font-semibold text-zinc-400 hover:text-white hover:bg-white/5 transition-all duration-200"
+                            className={`group/item flex items-center justify-between px-3.5 py-2.5 rounded-xl text-[13.5px] font-semibold transition-all duration-200
+                              ${isDark ? "text-zinc-400 hover:text-white hover:bg-white/5" : "text-zinc-600 hover:text-zinc-950 hover:bg-zinc-50"}`}
                           >
                             <span className="flex items-center gap-2.5 transition-transform duration-200 group-hover/item:translate-x-0.5">
                               {subLink.label.toLowerCase().includes("create") ? (
@@ -170,7 +172,9 @@ function Navigation() {
                     key={link.to!}
                     to={link.to!}
                     className={`font-medium text-[15px] transition-all duration-300 inline-block hover:-translate-y-[1px]
-                    ${isActive ? "text-white drop-shadow-[0_0_8px_rgba(255,255,255,0.4)]" : "text-[rgba(255,255,255,0.65)] hover:text-white"}`}
+                    ${isActive 
+                      ? (isDark ? "text-white drop-shadow-[0_0_8px_rgba(255,255,255,0.4)]" : "text-black font-semibold") 
+                      : (isDark ? "text-[rgba(255,255,255,0.65)] hover:text-white" : "text-zinc-600 hover:text-black")}`}
                   >
                     {link.label}
                   </Link>
@@ -182,17 +186,34 @@ function Navigation() {
           {/* Right tools */}
           <div className="flex items-center gap-4">
             {isLandingPage && (
-              <Link to="/swap">
-                <button className="bg-white text-black font-medium rounded-[18px] px-8 py-3 shadow-[0_8px_24px_rgba(255,255,255,0.15)] hover:scale-[1.03] hover:shadow-[0_8px_32px_rgba(255,255,255,0.3)] transition-all duration-300 flex items-center justify-center text-[15px]">
-                  Launch App
-                </button>
-              </Link>
+              <>
+                <a
+                  href="/docs/index.html"
+                  className={`hidden lg:inline-block font-medium text-[15px] transition-all duration-300 hover:-translate-y-[1px] mr-4
+                    ${isDark ? "text-[rgba(255,255,255,0.65)] hover:text-white" : "text-zinc-600 hover:text-black"}`}
+                >
+                  Devlopers's doc
+                </a>
+                <Link to="/swap">
+                  <button 
+                    className={`font-medium rounded-[18px] px-8 py-3 hover:scale-[1.03] transition-all duration-300 flex items-center justify-center text-[15px]
+                      ${isDark 
+                        ? "bg-white text-black shadow-[0_8px_24px_rgba(255,255,255,0.15)] hover:shadow-[0_8px_32px_rgba(255,255,255,0.3)]" 
+                        : "bg-zinc-950 text-white shadow-[0_8px_24px_rgba(0,0,0,0.08)] hover:shadow-[0_8px_32px_rgba(0,0,0,0.15)]"}`}
+                  >
+                    Launch App
+                  </button>
+                </Link>
+              </>
             )}
             {!isLandingPage && (
               <div className="relative" ref={dropdownRef}>
                 <button
                   onClick={handleWalletClick}
-                  className="bg-white text-black font-medium rounded-[18px] px-8 py-3 shadow-[0_8px_24px_rgba(255,255,255,0.15)] hover:scale-[1.03] hover:shadow-[0_8px_32px_rgba(255,255,255,0.3)] transition-all duration-300 flex items-center justify-center gap-2 text-[15px]"
+                  className={`font-medium rounded-[18px] px-8 py-3 hover:scale-[1.03] transition-all duration-300 flex items-center justify-center gap-2 text-[15px]
+                    ${isDark 
+                      ? "bg-white text-black shadow-[0_8px_24px_rgba(255,255,255,0.15)] hover:shadow-[0_8px_32px_rgba(255,255,255,0.3)]" 
+                      : "bg-zinc-950 text-white shadow-[0_8px_24px_rgba(0,0,0,0.08)] hover:shadow-[0_8px_32px_rgba(0,0,0,0.15)]"}`}
                 >
                   {isConnected && address ? (
                     <>
@@ -282,23 +303,29 @@ function Navigation() {
               </div>
             )}
 
-            <button
-              onClick={toggleTheme}
-              className="flex h-10 w-10 items-center justify-center rounded-full bg-white/5 border border-white/10 text-[rgba(255,255,255,0.65)] hover:text-white hover:bg-white/10 transition-colors focus:outline-none"
-              aria-label="Toggle theme"
-            >
-              {isDark ? <Sun size={16} /> : <Moon size={16} />}
-            </button>
-
             {!isLandingPage && (
               <button
-                onClick={() => setIsOpen(!isOpen)}
-                className="lg:hidden flex h-10 w-10 items-center justify-center rounded-full bg-white/5 border border-white/10 text-[rgba(255,255,255,0.65)] hover:text-white hover:bg-white/10 transition-colors focus:outline-none"
-                aria-label="Toggle navigation menu"
+                onClick={toggleTheme}
+                className={`flex h-10 w-10 items-center justify-center rounded-full transition-colors focus:outline-none border
+                  ${isDark 
+                    ? "bg-white/5 border-white/10 text-[rgba(255,255,255,0.65)] hover:text-white hover:bg-white/10" 
+                    : "bg-black/5 border-black/10 text-zinc-600 hover:text-zinc-950 hover:bg-black/10"}`}
+                aria-label="Toggle theme"
               >
-                {isOpen ? <X size={18} /> : <Menu size={18} />}
+                {isDark ? <Sun size={16} /> : <Moon size={16} />}
               </button>
             )}
+
+            <button
+              onClick={() => setIsOpen(!isOpen)}
+              className={`lg:hidden flex h-10 w-10 items-center justify-center rounded-full transition-colors focus:outline-none border
+                ${isDark 
+                  ? "bg-white/5 border-white/10 text-[rgba(255,255,255,0.65)] hover:text-white hover:bg-white/10" 
+                  : "bg-black/5 border-black/10 text-zinc-600 hover:text-zinc-950 hover:bg-black/10"}`}
+              aria-label="Toggle navigation menu"
+            >
+              {isOpen ? <X size={18} /> : <Menu size={18} />}
+            </button>
           </div>
         </div>
       </div>
@@ -315,56 +342,75 @@ function Navigation() {
               ${isDark ? "border-zinc-800/70 bg-zinc-950/85" : "border-slate-200/80 bg-white/85"}`}
           >
             <div className="flex flex-col gap-2">
-              {links.map((link) => {
-                if (link.subLinks) {
-                  return (
-                    <div key={link.label} className="flex flex-col gap-1">
-                      <div className="px-4 py-2 text-sm font-extrabold uppercase tracking-[0.16em] text-zinc-500">{link.label}</div>
-                      {link.subLinks.map(subLink => (
-                        <Link
-                          key={subLink.to}
-                          to={subLink.to}
-                          onClick={() => setIsOpen(false)}
-                          className={`rounded-2xl px-4 py-2.5 ml-4 text-sm font-bold tracking-wide transition duration-200
-                            ${isDark ? "text-zinc-400 hover:bg-white/5 hover:text-white" : "text-zinc-600 hover:bg-slate-100 hover:text-zinc-900"}`}
-                        >
-                          {subLink.label}
-                        </Link>
-                      ))}
-                    </div>
-                  );
-                }
-
-                const isActive = location.pathname === link.to;
-                return (
-                  <Link
-                    key={link.to!}
-                    to={link.to!}
+              {isLandingPage ? (
+                <>
+                  <a
+                    href="/docs/index.html"
                     onClick={() => setIsOpen(false)}
-                    className={`rounded-2xl px-4 py-2.5 text-sm font-extrabold uppercase tracking-[0.16em] transition duration-200
-                      ${isActive ? "bg-cyan-500/10 text-cyan-400 border border-cyan-500/10" : isDark ? "text-zinc-300 hover:bg-white/5" : "text-zinc-700 hover:bg-slate-100"}`}
+                    className="rounded-2xl px-4 py-2.5 text-sm font-extrabold uppercase tracking-[0.16em] transition duration-200 text-zinc-300 hover:bg-white/5"
                   >
-                    {link.label}
+                    Devlopers's doc
+                  </a>
+                  <Link to="/swap" onClick={() => setIsOpen(false)} className="w-full mt-2">
+                    <button className="w-full flex items-center justify-center rounded-2xl bg-white text-black font-extrabold uppercase tracking-wider py-3.5 text-sm hover:brightness-110 active:scale-[0.98] transition-all">
+                      Launch App
+                    </button>
                   </Link>
-                );
-              })}
+                </>
+              ) : (
+                <>
+                  {links.map((link) => {
+                    if (link.subLinks) {
+                      return (
+                        <div key={link.label} className="flex flex-col gap-1">
+                          <div className="px-4 py-2 text-sm font-extrabold uppercase tracking-[0.16em] text-zinc-500">{link.label}</div>
+                          {link.subLinks.map(subLink => (
+                            <Link
+                              key={subLink.to}
+                              to={subLink.to}
+                              onClick={() => setIsOpen(false)}
+                              className={`rounded-2xl px-4 py-2.5 ml-4 text-sm font-bold tracking-wide transition duration-200
+                                ${isDark ? "text-zinc-400 hover:bg-white/5 hover:text-white" : "text-zinc-600 hover:bg-slate-100 hover:text-zinc-900"}`}
+                            >
+                              {subLink.label}
+                            </Link>
+                          ))}
+                        </div>
+                      );
+                    }
 
-              <button
-                onClick={handleWalletClick}
-                className="mt-2 flex w-full items-center justify-center gap-2.5 rounded-2xl bg-gradient-to-r from-cyan-500 to-indigo-600 py-3.5 text-sm font-extrabold uppercase tracking-wider text-white hover:brightness-110 active:scale-[0.98] transition-all"
-              >
-                {isConnected && address ? (
-                  <>
-                    <span className="h-1.5 w-1.5 rounded-full bg-emerald-400" />
-                    {`${address.slice(0, 6)}...${address.slice(-4)}`}
-                  </>
-                ) : (
-                  <>
-                    <Wallet size={14} />
-                    Connect Wallet
-                  </>
-                )}
-              </button>
+                    const isActive = location.pathname === link.to;
+                    return (
+                      <Link
+                        key={link.to!}
+                        to={link.to!}
+                        onClick={() => setIsOpen(false)}
+                        className={`rounded-2xl px-4 py-2.5 text-sm font-extrabold uppercase tracking-[0.16em] transition duration-200
+                          ${isActive ? "bg-cyan-500/10 text-cyan-400 border border-cyan-500/10" : isDark ? "text-zinc-300 hover:bg-white/5" : "text-zinc-700 hover:bg-slate-100"}`}
+                      >
+                        {link.label}
+                      </Link>
+                    );
+                  })}
+
+                  <button
+                    onClick={handleWalletClick}
+                    className="mt-2 flex w-full items-center justify-center gap-2.5 rounded-2xl bg-gradient-to-r from-cyan-500 to-indigo-600 py-3.5 text-sm font-extrabold uppercase tracking-wider text-white hover:brightness-110 active:scale-[0.98] transition-all"
+                  >
+                    {isConnected && address ? (
+                      <>
+                        <span className="h-1.5 w-1.5 rounded-full bg-emerald-400" />
+                        {`${address.slice(0, 6)}...${address.slice(-4)}`}
+                      </>
+                    ) : (
+                      <>
+                        <Wallet size={14} />
+                        Connect Wallet
+                      </>
+                    )}
+                  </button>
+                </>
+              )}
 
               <AnimatePresence>
                 {showDropdown && isConnected && address && (
