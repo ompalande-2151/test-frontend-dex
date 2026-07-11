@@ -1,17 +1,95 @@
 import React, { useState, useEffect, useRef } from 'react';
 import { Link } from 'react-router-dom';
 import gsap from 'gsap';
+type QualityTier = '4k' | '1080p' | '720p' | '480p';
+
 const VideoBackground = ({ overlayClass }: { overlayClass?: string }) => {
+  const [quality, setQuality] = useState<QualityTier>('1080p');
+  const videoRef = useRef<HTMLVideoElement>(null);
+
+  useEffect(() => {
+    const selectQuality = (): QualityTier => {
+      let tier: QualityTier = '1080p';
+      
+      if (typeof window === 'undefined') return tier;
+
+      const width = window.innerWidth;
+      
+      // Access experimental Network Information API safely
+      const nav = navigator as any;
+      const connection = nav.connection || nav.mozConnection || nav.webkitConnection;
+      
+      const isSlowConnection = connection && (
+        connection.saveData || 
+        ['slow-2g', '2g', '3g'].includes(connection.effectiveType)
+      );
+
+      // Access performance APIs safely
+      const hardwareConcurrency = navigator.hardwareConcurrency || 4;
+      const deviceMemory = nav.deviceMemory || 4;
+      const isLowEndDevice = hardwareConcurrency <= 4 || deviceMemory <= 4;
+
+      if (isSlowConnection) {
+        tier = '480p';
+      } else if (isLowEndDevice) {
+        // Caps quality at 720p on low-end devices to save CPU/GPU rendering resources
+        tier = width < 768 ? '480p' : '720p';
+      } else {
+        // Fast connection and standard/high-end device
+        if (width < 768) {
+          tier = '720p';
+        } else if (width < 1440) {
+          tier = '1080p';
+        } else {
+          tier = '4k';
+        }
+      }
+
+      return tier;
+    };
+
+    // Initialize optimal quality tier on mount
+    setQuality(selectQuality());
+
+    // Listen to network changes dynamically (if supported by the browser)
+    const nav = navigator as any;
+    const connection = nav.connection || nav.mozConnection || nav.webkitConnection;
+    if (connection) {
+      const handleConnectionChange = () => {
+        setQuality(selectQuality());
+      };
+      connection.addEventListener('change', handleConnectionChange);
+      return () => {
+        connection.removeEventListener('change', handleConnectionChange);
+      };
+    }
+  }, []);
+
+  // Reload the video sources if quality tier changes
+  useEffect(() => {
+    if (videoRef.current) {
+      videoRef.current.load();
+    }
+  }, [quality]);
+
+  const webmSrc = `/R_Black_Hole_${quality}.webm`;
+  const mp4Src = `/R_Black_Hole_${quality}.mp4`;
+
   return (
     <div className="absolute inset-0 w-full h-full overflow-hidden">
       <video
-        src="/R_Black_Hole.mp4"
+        ref={videoRef}
         autoPlay
         muted
         loop
         playsInline
+        poster="/R_Black_Hole_poster.jpg"
         className="absolute top-1/2 left-1/2 min-w-full min-h-full object-cover -translate-x-1/2 -translate-y-1/2"
-      />
+      >
+        <source src={webmSrc} type="video/webm" />
+        <source src={mp4Src} type="video/mp4" />
+        Your browser does not support the video tag.
+      </video>
       <div className={`absolute inset-0 ${overlayClass}`} />
     </div>
   );

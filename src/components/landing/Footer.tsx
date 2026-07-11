@@ -7,7 +7,7 @@ export default function Footer() {
 
       <div className="relative z-10 w-full overflow-hidden mb-24">
         <div className="flex whitespace-nowrap opacity-10 text-6xl md:text-9xl font-bold tracking-tighter" style={{ animation: 'marquee 40s linear infinite' }}>
-          {Array(10).fill("MST BLOCKCHAIN • NATIVE DEX • ").map((text, i) => (
+          {Array(10).fill("RAPIDEX • SWAP • EXPLORE • POOL • ").map((text, i) => (
             <span key={i} className="mx-4 text-text-primary">{text}</span>
           ))}
         </div>
@@ -34,15 +34,42 @@ export default function Footer() {
           </button>
         </div>
         <div className="text-[10px] text-muted uppercase tracking-[0.2em] opacity-60">
-          Powered by MST Blockchain · PoSA Consensus · Non-Custodial
+          Powered by RAPIDEX · PoSA Consensus · Non-Custodial
         </div>
       </div>
 
       <div className="relative z-10 max-w-[1200px] mx-auto px-6 flex flex-col md:flex-row items-center justify-between gap-6 text-sm text-muted">
         <div className="flex items-center gap-6">
-          {['Twitter', 'LinkedIn', 'Dribbble', 'GitHub'].map(social => (
-            <a key={social} href="#" className="hover:text-text-primary transition-colors">{social}</a>
-          ))}
+          <a
+            href="https://x.com/Rapidex_offical"
+            target="_blank"
+            rel="noopener noreferrer"
+            className="hover:text-text-primary transition-colors"
+          >
+            Twitter
+          </a>
+          <a
+            href="https://www.instagram.com/rapidexofficial/"
+            target="_blank"
+            rel="noopener noreferrer"
+            className="hover:text-text-primary transition-colors"
+          >
+            Instagram
+          </a>
+          <a
+            href="#"
+            className="hover:text-text-primary transition-colors"
+          >
+            LinkedIn
+          </a>
+          <a
+            href="https://github.com/Masterstroke-technosoft/dex-smart-contracts"
+            target="_blank"
+            rel="noopener noreferrer"
+            className="hover:text-text-primary transition-colors"
+          >
+            GitHub
+          </a>
         </div>
         <div className="flex items-center gap-2">
           <div className="w-2 h-2 rounded-full bg-green-500 animate-pulse" />
@@ -52,3 +79,5 @@ export default function Footer() {
     </footer>
   );
 }
+
+

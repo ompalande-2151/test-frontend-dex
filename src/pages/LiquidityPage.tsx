@@ -3,7 +3,7 @@ import { useLocation } from "react-router-dom";
 import { motion, AnimatePresence } from "framer-motion";
 import { Info, Plus, Coins, HelpCircle, ExternalLink, ChevronDown, ChevronUp, ArrowLeft, ShieldCheck, Loader2, CheckCircle2, XCircle } from "lucide-react";
 import { formatUnits, parseUnits, type Address, decodeEventLog } from "viem";
-import { useAccount, useChainId, usePublicClient, useSwitchChain, useWriteContract, useBalance } from "wagmi";
+import { useAccount, useChainId, usePublicClient, useSwitchChain, useWriteContract, useBalance, useConnect } from "wagmi";
 import { getToken, TOKENS, CONTRACTS, erc20Abi, quoterV2Abi, nonfungiblePositionManagerAbi, rapidexV3FactoryAbi, poolAbi, V3_FEE, ZERO_SQRT_PRICE_LIMIT, type TokenConfig, NATIVE_TOKEN_SYMBOL } from "../config/contracts";
 import { ABIS } from "../config";
 import { mstChain } from "../config/chains";
@@ -108,12 +108,17 @@ async function mapWithLimit<T, R>(
 export default function LiquidityPage() {
   const { theme } = useThemeStore();
   const { address, isConnected } = useAccount();
+  const { connectors, connect } = useConnect();
   const chainId = useChainId();
   const { switchChainAsync } = useSwitchChain();
   const { writeContractAsync } = useWriteContract();
   const publicClient = usePublicClient();
   const { data: dbTokens } = useTokens();
   const queryClient = useQueryClient();
+
+  const metaMaskConnector =
+    connectors.find((item) => item.name.toLowerCase().includes("metamask")) ??
+    connectors.find((item) => item.id === "injected");
 
   const [tokenA_Symbol, setTokenA_Symbol] = useState("");
   const [tokenB_Symbol, setTokenB_Symbol] = useState("");
@@ -1901,6 +1906,25 @@ export default function LiquidityPage() {
       setIsWorking(false);
     }
   };
+
+  if (currentView === "list" && !isConnected) {
+    return (
+      <div className={`min-h-screen pt-[104px] pb-6 relative font-sans transition-colors duration-300 ease-in-out select-none flex flex-col items-center justify-center px-4 ${isDark ? "dark text-white" : "text-zinc-950"}`}>
+        <div className="max-w-md w-full text-center p-8 rounded-3xl border border-zinc-200/50 dark:border-white/10 bg-white/80 dark:bg-black/60 backdrop-blur-md shadow-xl">
+          <p className={`text-sm font-medium mb-6 ${isDark ? "text-zinc-200" : "text-zinc-700"}`}>
+            You are not connected to a wallet — connect your wallet to view your liquidity positions.
+          </p>
+          <button
+            onClick={() => metaMaskConnector && connect({ connector: metaMaskConnector, chainId: mstChain.id })}
+            disabled={!metaMaskConnector}
+            className="w-full rounded-2xl bg-gradient-to-r from-cyan-500 to-indigo-600 px-4 py-3.5 text-sm font-bold text-white hover:brightness-110 active:scale-[0.98] transition-all disabled:opacity-50 disabled:cursor-not-allowed"
+          >
+            Connect Wallet
+          </button>
+        </div>
+      </div>
+    );
+  }
 
   return (
     <div className="relative min-h-screen px-4 pb-20 pt-[104px] overflow-hidden font-sans">

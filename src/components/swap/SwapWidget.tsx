@@ -1244,17 +1244,25 @@ export function SwapWidget({ theme }: SwapWidgetProps) {
     }
   };
 
+  const isInsufficientBalance = useMemo(() => {
+    if (!isConnected || !amountIn) return false;
+    const amountNumber = Number(amountIn);
+    const balanceNumber = Number(balanceIn);
+    return Number.isFinite(amountNumber) && amountNumber > balanceNumber;
+  }, [isConnected, amountIn, balanceIn]);
+
   const buttonLabel = useMemo(() => {
     if (!isConnected) return "Connect Wallet";
     if (chainId !== mstChain.id) return isSwitching ? "Switching Network..." : "Switch to MST Testnet";
     if (tokenIn === NATIVE_TOKEN_SYMBOL && tokenOut === "USDC") return "Swap Blocked";
     if (isWorking) return statusText || "Processing...";
     if (!amountIn || Number(amountIn) <= 0) return "Enter an amount";
+    if (isInsufficientBalance) return `Insufficient ${displayTokenSymbol(tokenIn)} balance`;
     if (steps.length > 0) {
       return steps[0].label;
     }
     return "Confirm Swap";
-  }, [isConnected, chainId, isWorking, statusText, amountIn, isSwitching, steps, tokenIn, tokenOut]);
+  }, [isConnected, chainId, isWorking, statusText, amountIn, isSwitching, steps, tokenIn, tokenOut, isInsufficientBalance]);
 
   // Glow border tracking
   const handleInMouseMove = (e: React.MouseEvent<HTMLDivElement>) => {
@@ -1566,11 +1574,11 @@ export function SwapWidget({ theme }: SwapWidgetProps) {
         <button
           ref={buttonMagneticRef}
           onClick={handleSwap}
-          disabled={isWorking || isSwitching || (isConnected && (!amountIn || Number(amountIn) <= 0 || steps.length === 0)) || (tokenIn === NATIVE_TOKEN_SYMBOL && tokenOut === "USDC")}
+          disabled={isWorking || isSwitching || isInsufficientBalance || (isConnected && (!amountIn || Number(amountIn) <= 0 || steps.length === 0)) || (tokenIn === NATIVE_TOKEN_SYMBOL && tokenOut === "USDC")}
           className={`w-full mt-5 py-4.5 font-bold text-lg tracking-wider transition-all duration-300 relative overflow-hidden group border-none shadow-none bg-transparent select-none outline-none
             ${!isConnected
               ? "text-cyan-600 dark:text-cyan-400 hover:text-cyan-500 dark:hover:text-cyan-300 active:scale-[0.98]"
-              : isWorking
+              : (isWorking || isInsufficientBalance)
                 ? "text-zinc-500 dark:text-zinc-600 cursor-not-allowed"
                 : !amountIn || Number(amountIn) <= 0
                   ? "text-zinc-400 dark:text-zinc-700 cursor-not-allowed"
@@ -1579,7 +1587,7 @@ export function SwapWidget({ theme }: SwapWidgetProps) {
                     : "text-[#FB118E] hover:text-cyan-600 dark:hover:text-cyan-400 font-extrabold text-xl transition-all duration-300 active:scale-[0.98]"
             }`}
           style={{
-            textShadow: (!isConnected || (!amountIn || Number(amountIn) <= 0) || isWorking || (tokenIn === NATIVE_TOKEN_SYMBOL && tokenOut === "USDC"))
+            textShadow: (!isConnected || (!amountIn || Number(amountIn) <= 0) || isWorking || isInsufficientBalance || (tokenIn === NATIVE_TOKEN_SYMBOL && tokenOut === "USDC"))
               ? "none"
               : "0 0 10px rgba(251, 17, 142, 0.5), 0 0 20px rgba(0, 240, 255, 0.2)"
           }}

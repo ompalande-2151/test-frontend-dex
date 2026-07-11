@@ -189,6 +189,8 @@ function Navigation() {
               <>
                 <a
                   href="/docs/index.html"
+                  target="_blank"
+                  rel="noopener noreferrer"
                   className={`hidden lg:inline-block font-medium text-[15px] transition-all duration-300 hover:-translate-y-[1px] mr-4
                     ${isDark ? "text-[rgba(255,255,255,0.65)] hover:text-white" : "text-zinc-600 hover:text-black"}`}
                 >
@@ -346,6 +348,8 @@ function Navigation() {
                 <>
                   <a
                     href="/docs/index.html"
+                    target="_blank"
+                    rel="noopener noreferrer"
                     onClick={() => setIsOpen(false)}
                     className="rounded-2xl px-4 py-2.5 text-sm font-extrabold uppercase tracking-[0.16em] transition duration-200 text-zinc-300 hover:bg-white/5"
                   >
