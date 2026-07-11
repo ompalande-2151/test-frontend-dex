@@ -52,7 +52,13 @@ export default function Explorations() {
     const initAnimation = () => {
       ctx.add(() => {
         const mm = gsap.matchMedia();
-        mm.add("(min-width: 768px)", () => {
+        mm.add({
+          isMobile: "(max-width: 767px)",
+          isTablet: "(min-width: 768px) and (max-width: 1023px)",
+          isDesktop: "(min-width: 1024px)"
+        }, (context) => {
+          const { isMobile, isTablet, isDesktop } = context.conditions as any;
+
           ScrollTrigger.create({
             trigger: containerRef.current,
             start: "top top",
@@ -70,6 +76,12 @@ export default function Explorations() {
             }
           });
 
+          // Adjust starting ring radius, final tight ring radius, and coin scale based on device size
+          const startRadiusX = isMobile ? 3.0 : isTablet ? 5.5 : 7;
+          const startRadiusY = isMobile ? 2.0 : isTablet ? 4.0 : 5;
+          const finalRadius = isMobile ? 1.6 : isTablet ? 2.6 : 4.0;
+          const coinScale = isMobile ? 0.6 : isTablet ? 1.1 : 1.8;
+
           // Animate each coin individually
           coinRefs.current.forEach((coin, index) => {
             if (!coin) return;
@@ -78,8 +90,8 @@ export default function Explorations() {
 
             // Start them in a wide ring without randomness so it's perfectly consistent on reload
             gsap.set(coin.position, {
-              x: Math.cos(angle) * 7,
-              y: Math.sin(angle) * 5,
+              x: Math.cos(angle) * startRadiusX,
+              y: Math.sin(angle) * startRadiusY,
               z: -2 // Slightly pushed back
             });
 
@@ -92,13 +104,12 @@ export default function Explorations() {
 
             // Initial small size
             gsap.set(coin.scale, {
-              x: 0.3,
-              y: 0.3,
-              z: 0.3
+              x: 0.1,
+              y: 0.1,
+              z: 0.1
             });
 
             // Animate them flying forward into a beautiful tight ring around the text
-            const finalRadius = 4;
             tl.to(coin.position, {
               x: Math.cos(angle) * finalRadius,
               y: Math.sin(angle) * finalRadius,
@@ -116,11 +127,11 @@ export default function Explorations() {
               ease: "power2.inOut"
             }, 0);
 
-            // Scale up to big size (1.8)
+            // Scale up to big size
             tl.to(coin.scale, {
-              x: 1.8,
-              y: 1.8,
-              z: 1.8,
+              x: coinScale,
+              y: coinScale,
+              z: coinScale,
               duration: 0.8, // Finish scaling earlier
               ease: "power2.inOut"
             }, 0);
@@ -130,7 +141,7 @@ export default function Explorations() {
           if (blurOverlayRef.current) {
             gsap.set(blurOverlayRef.current, { opacity: 0 });
             tl.to(blurOverlayRef.current, {
-              opacity: 5,
+              opacity: 1,
               duration: 0.4,
               ease: "power2.in"
             }, 0.2); // Start fading in at 60% scroll
@@ -156,15 +167,15 @@ export default function Explorations() {
 
   return (
     <section ref={containerRef} className="relative bg-bg min-h-[400vh]">
-      <div ref={contentRef} className="h-screen w-full flex items-center justify-center z-10 sticky top-0 overflow-hidden">
+      <div ref={contentRef} className="h-screen w-full flex items-center justify-center z-10 sticky top-0 overflow-hidden px-4 sm:px-6">
 
         {/* The UI Text */}
-        <div className="text-center bg-bg/80 backdrop-blur-md p-8 rounded-3xl pointer-events-auto border border-stroke shadow-2xl relative z-30">
+        <div className="text-center bg-bg/80 backdrop-blur-md p-6 sm:p-8 rounded-3xl pointer-events-auto border border-stroke shadow-2xl relative z-30 max-w-sm sm:max-w-md mx-4">
           <div className="text-xs text-muted uppercase tracking-[0.3em] mb-4">ON-CHAIN ANALYTICS</div>
           <h2 className="text-4xl md:text-6xl font-light text-text-primary mb-6">
             Live blockchain <span className="font-landing italic">data</span>
           </h2>
-          <p className="text-muted mb-8 max-w-sm mx-auto">Real-time transactions, token pairs, and market depth — all verifiable on MSTScan.</p>
+          <p className="text-muted mb-8 max-w-sm mx-auto text-sm md:text-base">Real-time transactions, token pairs, and market depth — all verifiable on MSTScan.</p>
           <a href="https://mstscan.com/" target="_blank" rel="noopener noreferrer">
             <button className="rounded-full px-6 py-3 bg-text-primary text-bg font-medium hover:scale-105 transition-transform">
               Open Explorer

@@ -46,21 +46,22 @@ export default function Hero() {
   }, []);
 
   return (
-    <section ref={heroRef} className="relative w-full h-screen flex flex-col items-center justify-center overflow-hidden">
+    <section ref={heroRef} className="relative w-full min-h-screen flex flex-col items-center justify-center overflow-hidden pt-32 pb-16 md:py-0">
       <VideoBackground overlayClass="bg-black/20" />
       <div className="absolute bottom-0 left-0 right-0 h-48 bg-gradient-to-t from-bg to-transparent z-0" />
 
       <div className="relative z-10 flex flex-col items-center text-center px-4 w-full">
 
-        <h1 ref={nameRef} className="text-6xl md:text-8xl lg:text-9xl font-landing italic leading-[0.9] tracking-tight text-text-primary mb-6">
+        <h1 ref={nameRef} className="text-4xl sm:text-6xl md:text-8xl lg:text-9xl font-landing italic leading-[0.9] tracking-tight text-text-primary mb-4 md:mb-6">
           Swap Crypto
         </h1>
 
-        <div className="text-2xl md:text-3xl lg:text-4xl mb-8 flex items-center justify-center gap-2">
-          <span key={roleIndex} className="font-landing italic text-text-primary animate-role-fade-in inline-block">{roles[roleIndex]}</span>in a Truly Decentralized Ecosystem
+        <div className="text-lg sm:text-2xl md:text-3xl lg:text-4xl mb-6 md:mb-8 text-center max-w-2xl mx-auto leading-relaxed px-4">
+          <span key={roleIndex} className="font-landing italic text-text-primary animate-role-fade-in inline-block mr-2">{roles[roleIndex]}</span>
+          in a Truly Decentralized Ecosystem
         </div>
 
-        <p className="text-sm md:text-base text-white/80 text-muted max-w-md mb-12">
+        <p className="text-xs sm:text-sm md:text-base text-white/80 text-muted max-w-md mb-8 md:mb-12">
           Securely swap, stake, and manage digital assets with a fully decentralized, non-custodial exchange built for the Web3 era.
         </p>
 
@@ -74,7 +75,7 @@ export default function Hero() {
         </div>
       </div>
 
-      <div className="absolute bottom-8 left-1/2 -translate-x-1/2 flex flex-col items-center z-10">
+      <div className="absolute bottom-8 left-1/2 -translate-x-1/2 hidden md:flex flex-col items-center z-10">
         <span className="text-[10px] text-muted uppercase tracking-[0.2em] mb-4">SCROLL</span>
         <div className="w-px h-10 bg-stroke overflow-hidden relative">
           <div className="w-full h-full bg-text-primary animate-scroll-down" />

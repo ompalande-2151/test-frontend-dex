@@ -102,7 +102,7 @@ function Navigation() {
         y: { duration: 6, repeat: Infinity, ease: "easeInOut" },
         opacity: { duration: 0.8, ease: "easeOut" }
       }}
-      className="fixed top-6 inset-x-0 z-50 w-[85%] max-w-[1200px] mx-auto"
+      className="fixed top-6 inset-x-0 z-50 w-[90%] sm:w-[85%] max-w-[1200px] mx-auto"
     >
       <div className="relative w-full h-[76px]">
 
@@ -192,9 +192,9 @@ function Navigation() {
                   className={`hidden lg:inline-block font-medium text-[15px] transition-all duration-300 hover:-translate-y-[1px] mr-4
                     ${isDark ? "text-[rgba(255,255,255,0.65)] hover:text-white" : "text-zinc-600 hover:text-black"}`}
                 >
-                  Developers
+                  Developer docs
                 </a>
-                <Link to="/swap">
+                <Link to="/swap" className="hidden sm:block">
                   <button
                     className={`font-medium rounded-[18px] px-8 py-3 hover:scale-[1.03] transition-all duration-300 flex items-center justify-center text-[15px]
                       ${isDark
@@ -207,7 +207,7 @@ function Navigation() {
               </>
             )}
             {!isLandingPage && (
-              <div className="relative" ref={dropdownRef}>
+              <div className="hidden md:block relative" ref={dropdownRef}>
                 <button
                   onClick={handleWalletClick}
                   className={`font-medium rounded-[18px] px-8 py-3 hover:scale-[1.03] transition-all duration-300 flex items-center justify-center gap-2 text-[15px]
@@ -306,7 +306,7 @@ function Navigation() {
             {!isLandingPage && (
               <button
                 onClick={toggleTheme}
-                className={`flex h-10 w-10 items-center justify-center rounded-full transition-colors focus:outline-none border
+                className={`hidden md:flex h-10 w-10 items-center justify-center rounded-full transition-colors focus:outline-none border
                   ${isDark
                     ? "bg-white/5 border-white/10 text-[rgba(255,255,255,0.65)] hover:text-white hover:bg-white/10"
                     : "bg-black/5 border-black/10 text-zinc-600 hover:text-zinc-950 hover:bg-black/10"}`}
@@ -349,7 +349,7 @@ function Navigation() {
                     onClick={() => setIsOpen(false)}
                     className="rounded-2xl px-4 py-2.5 text-sm font-extrabold uppercase tracking-[0.16em] transition duration-200 text-zinc-300 hover:bg-white/5"
                   >
-                    Devlopers's doc
+                    Devlopers docs
                   </a>
                   <Link to="/swap" onClick={() => setIsOpen(false)} className="w-full mt-2">
                     <button className="w-full flex items-center justify-center rounded-2xl bg-white text-black font-extrabold uppercase tracking-wider py-3.5 text-sm hover:brightness-110 active:scale-[0.98] transition-all">
@@ -409,6 +409,30 @@ function Navigation() {
                       </>
                     )}
                   </button>
+
+                  {/* Theme Toggle in Mobile Menu */}
+                  <div className={`mt-4 flex items-center justify-between border-t pt-4 ${isDark ? "border-zinc-800" : "border-zinc-200"}`}>
+                    <span className={`text-xs font-extrabold uppercase tracking-[0.16em] ${isDark ? "text-zinc-400" : "text-zinc-500"}`}>
+                      Theme Mode
+                    </span>
+                    <button
+                      onClick={toggleTheme}
+                      className={`flex h-10 px-4 items-center justify-center rounded-full transition-all border gap-1.5
+                        ${isDark
+                          ? "bg-white/5 border-white/10 text-[rgba(255,255,255,0.8)] hover:text-white"
+                          : "bg-black/5 border-black/10 text-zinc-700 hover:text-zinc-950"}`}
+                    >
+                      {isDark ? (
+                        <>
+                          <Sun size={14} /> <span className="text-xs font-semibold">Light</span>
+                        </>
+                      ) : (
+                        <>
+                          <Moon size={14} /> <span className="text-xs font-semibold">Dark</span>
+                        </>
+                      )}
+                    </button>
+                  </div>
                 </>
               )}
 

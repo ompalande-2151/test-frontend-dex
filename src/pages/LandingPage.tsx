@@ -38,9 +38,9 @@ export default function LandingPage() {
       <main className="flex-1 w-full relative z-10">
         <Hero />
         <SelectedWorks />
-        <Journal />
+        {/* <Journal /> */}
         <Explorations />
-        <Stats />
+        {/* <Stats /> */}
       </main>
 
       {/* Footer Section links */}

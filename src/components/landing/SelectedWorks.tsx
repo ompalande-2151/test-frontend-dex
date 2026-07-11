@@ -24,7 +24,6 @@ function EthereumModel({ mouse, ...props }: any) {
       const targetX = mouse.current.y * 0.5;
       // Use Math.sin for oscillatory continuous rotation to prevent exposing the backside
       const targetY = (mouse.current.x * 0.5) + Math.sin(state.clock.elapsedTime * 1.5) * 0.4;
-
       // Smoothly interpolate to target rotation
       group.current.rotation.x = THREE.MathUtils.lerp(group.current.rotation.x, targetX, 0.05);
       group.current.rotation.y = THREE.MathUtils.lerp(group.current.rotation.y, targetY, 0.05);
@@ -42,6 +41,23 @@ function EthereumModel({ mouse, ...props }: any) {
 
 export default function SelectedWorks() {
   const mouse = React.useRef({ x: 0, y: 0 });
+  const [scale, setScale] = React.useState(1.4);
+  const [position, setPosition] = React.useState<[number, number, number]>([0, 0, -2]);
+
+  React.useEffect(() => {
+    const handleResize = () => {
+      if (window.innerWidth < 768) {
+        setScale(0.9);
+        setPosition([0, 0, -1]);
+      } else {
+        setScale(1.4);
+        setPosition([0, 0, -2]);
+      }
+    };
+    handleResize();
+    window.addEventListener('resize', handleResize);
+    return () => window.removeEventListener('resize', handleResize);
+  }, []);
 
   const handleMouseMove = (e: React.MouseEvent) => {
     const { innerWidth, innerHeight } = window;
@@ -63,7 +79,7 @@ export default function SelectedWorks() {
           <directionalLight position={[-5, -10, -5]} intensity={1} color="#4E85BF" />
           <Environment preset="city" />
           <Suspense fallback={null}>
-            <EthereumModel mouse={mouse} position={[0, 0, -2]} scale={1.4} rotation={[0, Math.PI / 6, 0]} />
+            <EthereumModel mouse={mouse} position={position} scale={scale} rotation={[0, Math.PI / 6, 0]} />
           </Suspense>
         </Canvas>
       </div>
@@ -93,23 +109,59 @@ export default function SelectedWorks() {
           </button>
         </motion.div>
 
-        <div className="grid grid-cols-1 md:grid-cols-12 gap-5 md:gap-6">
+        <div className="grid grid-cols-1 sm:grid-cols-2 md:grid-cols-12 gap-5 md:gap-6">
           {[
-            { title: "Native Token Swap", description: "Swap MSTC and ecosystem tokens instantly with low fees and no intermediaries — directly on the MST chain.", span: "md:col-span-7", aspect: "aspect-[4/3] md:aspect-auto" },
-            { title: "Liquidity Pools", description: "Provide liquidity and earn trading fees. Permissionless pools backed by MST Blockchain's PoSA consensus.", span: "md:col-span-5", aspect: "aspect-square" },
-            { title: "Portfolio Tracker", description: "Monitor all your holdings, positions, and PnL in one place — your personal on-chain dashboard.", span: "md:col-span-5", aspect: "aspect-square" },
-            { title: "MST Explorer", description: "Track live transactions, token pairs, and on-chain analytics powered by MSTScan.", span: "md:col-span-7", aspect: "aspect-[4/3] md:aspect-auto" }
+            {
+              title: "Native Token Swap",
+              description: "Swap MSTC and ecosystem tokens instantly with low fees and no intermediaries — directly on the MST chain.",
+              span: "sm:col-span-2 md:col-span-7",
+              bgImage: "/logos-mst-ecosystem/swap_13111433.png"
+            },
+            {
+              title: "Liquidity Pools",
+              description: "Provide liquidity and earn trading fees. Permissionless pools backed by MST Blockchain's PoSA consensus.",
+              span: "sm:col-span-1 md:col-span-5",
+              bgImage: "/logos-mst-ecosystem/drop_6642223.png"
+            },
+            {
+              title: "Portfolio Tracker",
+              description: "Monitor all your holdings, positions, and PnL in one place — your personal on-chain dashboard.",
+              span: "sm:col-span-1 md:col-span-5",
+              bgImage: "/logos-mst-ecosystem/graph-bar_8655831.png"
+            },
+            {
+              title: "MST Explorer",
+              description: "Track live transactions, token pairs, and on-chain analytics powered by MSTScan.",
+              span: "sm:col-span-2 md:col-span-7",
+              bgImage: "/logos-mst-ecosystem/compass_13984624.png"
+            }
           ].map((item, i) => (
-            <div key={i} className={`group relative bg-white/[0.03] backdrop-blur-xl border border-white/10 shadow-[0_8px_32px_0_rgba(0,0,0,0.5)] rounded-3xl overflow-hidden flex flex-col justify-end p-8 cursor-pointer ${item.span} ${item.aspect} min-h-[300px] md:min-h-[400px]`}>
+            <div key={i} className={`group relative bg-white/[0.03] backdrop-blur-xl border border-white/10 shadow-[0_8px_32px_0_rgba(0,0,0,0.5)] rounded-3xl overflow-hidden flex flex-col justify-end p-6 md:p-8 cursor-pointer ${item.span} min-h-[250px] sm:min-h-[300px] md:min-h-[380px]`}>
+              {/* Card watermark background image */}
+              {item.bgImage && (
+                <div
+                  className="absolute pointer-events-none opacity-[0.06] group-hover:opacity-[0.12] group-hover:scale-110 transition-all duration-700 filter invert right-[-10px] top-[-10px] w-40 h-40 sm:w-48 sm:h-48 md:w-60 md:h-60"
+                  style={{
+                    backgroundImage: `url(${item.bgImage})`,
+                    backgroundSize: "contain",
+                    backgroundRepeat: "no-repeat",
+                    backgroundPosition: "center"
+                  }}
+                />
+              )}
+
               <div className="absolute inset-0 bg-gradient-to-br from-white/10 to-transparent group-hover:scale-105 transition-transform duration-700 pointer-events-none" />
               <div className="absolute inset-0 mix-blend-overlay opacity-30 pointer-events-none" style={{ backgroundImage: 'radial-gradient(circle, rgba(255,255,255,0.4) 1px, transparent 1px)', backgroundSize: '4px 4px' }} />
 
               <div className="relative z-20 pointer-events-none">
                 <h3 className="text-2xl md:text-3xl font-medium mb-3">{item.title}</h3>
-                <p className="text-sm md:text-base text-muted max-w-sm">{item.description}</p>
+                <p className="text-sm md:text-base text-muted max-w-sm line-clamp-3">{item.description}</p>
+                <div className="flex md:hidden items-center gap-1 text-xs font-bold uppercase tracking-wider text-text-primary mt-4">
+                  Explore <span className="text-sm leading-none">→</span>
+                </div>
               </div>
 
-              <div className="absolute inset-0 bg-black/0 group-hover:bg-black/60 backdrop-blur-none group-hover:backdrop-blur-md transition-all duration-500 flex items-center justify-center opacity-0 group-hover:opacity-100 z-30">
+              <div className="absolute inset-0 bg-black/0 md:group-hover:bg-black/60 backdrop-blur-none md:group-hover:backdrop-blur-md transition-all duration-500 hidden md:flex items-center justify-center opacity-0 md:group-hover:opacity-100 z-30">
                 <div className="relative rounded-full bg-white/10 backdrop-blur-md border border-white/20 text-text-primary px-6 py-3 font-medium overflow-hidden shadow-2xl transition-transform hover:scale-105">
                   <div className="absolute inset-[-2px] rounded-full animate-gradient-shift accent-gradient opacity-0 group-hover:opacity-100 transition-opacity duration-300 pointer-events-none" />
                   <span className="relative z-10 flex items-center">
@@ -119,6 +171,16 @@ export default function SelectedWorks() {
               </div>
             </div>
           ))}
+        </div>
+
+        {/* Explore All Features Mobile CTA Button */}
+        <div className="mt-8 flex md:hidden justify-center">
+          <button className="group relative rounded-full px-6 py-3 bg-surface flex items-center gap-2">
+            <span className="absolute inset-[-2px] rounded-full accent-gradient opacity-0 group-hover:opacity-100 -z-10 transition-opacity" />
+            <span className="relative z-10 bg-surface rounded-full px-6 py-3 -m-3 flex items-center gap-2 w-[calc(100%+24px)] justify-center">
+              Explore All Features <span className="text-lg leading-none">→</span>
+            </span>
+          </button>
         </div>
       </div>
     </section>
