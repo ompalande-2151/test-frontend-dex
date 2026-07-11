@@ -1,0 +1,141 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8" />
+<meta name="viewport" content="width=device-width, initial-scale=1.0" />
+<title>Unsupported Tokens - Rapidex v3</title>
+<meta name="description" content="Token types that are incompatible with Rapidex v3, such as fee-on-transfer tokens and rebasing tokens, and the risks they carry for liquidity providers." />
+<link rel="preconnect" href="https://fonts.googleapis.com" />
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin />
+<link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700&display=swap" rel="stylesheet" />
+<link rel="stylesheet" href="../assets/styles.css" />
+<script>(function(){try{if(localStorage.getItem('rapidex-theme')==='light')document.documentElement.setAttribute('data-theme','light');}catch(e){}})();</script>
+</head>
+<body>
+
+<canvas id="particles-canvas"></canvas>
+
+<header class="site-header">
+  <div class="brand"><a href="../home.html" style="display:flex;align-items:center;"><img class="brand-logo" data-src-dark="../assets/Rapidex Logo White.png" data-src-light="../assets/Rapidex Logo Black.png" src="../assets/Rapidex Logo White.png" alt="Rapidex" style="height:50px;" /></a></div>
+  <nav>
+    <a href="../index.html" class="active">Docs</a>
+    <a href="../whitepaper.html">Whitepaper</a>
+    <a href="#">SDKs</a>
+  </nav>
+  <div class="header-actions">
+    <button class="theme-toggle" type="button" title="Toggle theme" aria-label="Toggle theme">
+      <svg class="icon-moon" fill="none" viewBox="0 0 24 24" stroke="currentColor" stroke-width="2"><path stroke-linecap="round" stroke-linejoin="round" d="M21 12.79A9 9 0 1111.21 3 7 7 0 0021 12.79z"/></svg>
+      <svg class="icon-sun" fill="none" viewBox="0 0 24 24" stroke="currentColor" stroke-width="2"><circle cx="12" cy="12" r="4"/><path stroke-linecap="round" d="M12 2v2M12 20v2M4.93 4.93l1.41 1.41M17.66 17.66l1.41 1.41M2 12h2M20 12h2M6.34 17.66l-1.41 1.41M19.07 4.93l-1.41 1.41"/></svg>
+    </button>
+    <a class="icon-link" href="https://github.com/singhritik62/final-dex" title="GitHub">GitHub</a>
+  </div>
+</header>
+
+<div class="shell">
+  <aside class="sidebar">
+    <div class="group">
+      <div class="group-title">Rapidex v3</div>
+      <a href="../index.html">Overview</a>
+    </div>
+    <div class="group">
+      <div class="group-title">Concepts</div>
+      <a href="./architecture.html">Architecture</a>
+      <a href="./unsupported-tokens.html" class="active">Unsupported Tokens</a>
+    </div>
+    <div class="group">
+      <div class="group-title">Guides</div>
+      <a href="../guides/getting-started.html">Getting Started</a>
+      <a href="../guides/swapping.html">Swapping</a>
+      <a href="../guides/managing-liquidity.html">Managing Liquidity</a>
+      <a href="../guides/pool-data.html">Fetching Pool Data</a>
+    </div>
+    <div class="group">
+      <div class="group-title">Reference</div>
+      <a href="../reference/deployments.html">Deployments</a>
+      <a href="../reference/audits.html">Audits</a>
+    </div>
+  </aside>
+
+  <div class="content-wrap">
+    <main class="content">
+      <h1>Unsupported Tokens</h1>
+      <p class="lede">Not all ERC-20 tokens are compatible with Rapidex v3. Fee-on-transfer and rebasing tokens have non-standard transfer semantics that break protocol assumptions.</p>
+
+      <h2 id="fee-on-transfer">Fee-on-Transfer Tokens</h2>
+      <p>Some tokens deduct a percentage of every transfer as a fee, so the recipient receives less than the amount specified in the <code>transfer()</code> call. Rapidex v3 router contracts are <strong>incompatible</strong> with this behaviour.</p>
+
+      <p>The router assumes that when it sends <code>amountIn</code> tokens to the pool, the pool receives exactly <code>amountIn</code>. If a transfer fee is deducted in transit, the pool's actual balance is less than expected. This breaks the internal accounting and will cause the transaction to revert, or worse, execute with an incorrect token balance.</p>
+
+      <div class="callout warning">
+        <span class="callout-title">No Router Support Planned</span>
+        There is no plan to add a router variant that supports fee-on-transfer tokens. Token creators who want their token to be tradeable on Rapidex v3 should either remove the transfer fee or deploy a fee-free wrapper token and a corresponding pool for the wrapper.
+      </div>
+
+      <h3 id="workarounds-fot">Workarounds</h3>
+      <ul>
+        <li><strong>Token wrapper</strong>: deploy a standard ERC-20 wrapper contract that holds the fee-on-transfer token and issues 1:1 wrapper tokens without any transfer fee. Create a Rapidex v3 pool for the wrapper token.</li>
+        <li><strong>Custom router</strong>: build a specialised router contract that accounts for the transfer fee by querying balances before and after each transfer. This is significantly more complex and is the responsibility of the token creator, not the protocol.</li>
+      </ul>
+
+      <h2 id="rebasing-tokens">Rebasing Tokens</h2>
+      <p>Rebasing tokens periodically adjust all token holder balances, either upward (positive rebase) or downward (negative rebase), without any transfer occurring. Examples include elastic-supply stablecoins and certain synthetic assets.</p>
+
+      <p>Unlike fee-on-transfer tokens, rebasing tokens <strong>can</strong> be used to create Rapidex v3 pools and execute swaps. However, they carry a significant risk for liquidity providers.</p>
+
+      <h3 id="rebase-risk">Risk for Liquidity Providers</h3>
+      <p>When a negative rebase occurs, all token balances decrease, including the tokens held inside a pool. The pool's internal accounting tracks liquidity in terms of the amounts deposited at mint time. After a negative rebase, the actual token balance in the pool is lower than what the position accounting expects.</p>
+
+      <p>When a liquidity provider's position is in range during a negative rebase event, they bear the full loss of the rebased amount with no mechanism to recover it. The pool has no way to distinguish a rebase from a legitimately low balance.</p>
+
+      <div class="callout warning">
+        <span class="callout-title">Unrecoverable Loss</span>
+        Losses from negative rebase events that occur while a position is active are permanent. There is no protocol-level protection or compensation mechanism. Liquidity providers using rebasing tokens assume this risk in full.
+      </div>
+
+      <h3 id="positive-rebase">Positive Rebases</h3>
+      <p>Positive rebases increase the pool's token balance beyond what the position accounting tracks. The additional tokens effectively become unclaimable by liquidity providers, since the accounting has no record of the extra balance. Positive rebases therefore silently dilute LP returns.</p>
+
+      <h2 id="summary">Summary</h2>
+      <table>
+        <thead>
+          <tr><th>Token Type</th><th>Pool Creation</th><th>Swapping</th><th>Liquidity Provision</th></tr>
+        </thead>
+        <tbody>
+          <tr><td>Standard ERC-20</td><td>Supported</td><td>Supported</td><td>Supported</td></tr>
+          <tr><td>Fee-on-Transfer</td><td>Possible</td><td>Broken via router</td><td>Not recommended</td></tr>
+          <tr><td>Rebasing</td><td>Supported</td><td>Supported</td><td>Risk of unrecoverable loss</td></tr>
+        </tbody>
+      </table>
+
+      <div class="page-nav">
+        <a class="prev" href="./architecture.html"><span class="dir">Previous</span>Architecture</a>
+        <a class="next" href="../guides/getting-started.html"><span class="dir">Next</span>Getting Started</a>
+      </div>
+    </main>
+
+    <aside class="toc">
+      <div class="toc-title">On this page</div>
+      <a href="#fee-on-transfer">Fee-on-Transfer Tokens</a>
+      <a href="#workarounds-fot">Workarounds</a>
+      <a href="#rebasing-tokens">Rebasing Tokens</a>
+      <a href="#rebase-risk">Risk for Liquidity Providers</a>
+      <a href="#positive-rebase">Positive Rebases</a>
+      <a href="#summary">Summary</a>
+    </aside>
+  </div>
+</div>
+
+<footer class="site-footer">
+  <span>&copy; 2026 Rapidex Labs. Documentation for the Rapidex v3 Smart Contracts.</span>
+  <div class="footer-links">
+    <a href="https://github.com/singhritik62/final-dex">GitHub</a>
+    <a href="https://discord.gg">Discord</a>
+    <a href="https://x.com">X</a>
+  </div>
+</footer>
+
+<script src="../assets/particles.js"></script>
+<script src="../assets/theme.js"></script>
+<script src="../assets/docs.js"></script>
+</body>
+</html>

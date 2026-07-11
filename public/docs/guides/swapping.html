@@ -1,0 +1,237 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8" />
+<meta name="viewport" content="width=device-width, initial-scale=1.0" />
+<title>Swapping - Rapidex v3</title>
+<link rel="preconnect" href="https://fonts.googleapis.com" />
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin />
+<link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700&display=swap" rel="stylesheet" />
+<link rel="stylesheet" href="../assets/styles.css" />
+<script>(function(){try{if(localStorage.getItem('rapidex-theme')==='light')document.documentElement.setAttribute('data-theme','light');}catch(e){}})();</script>
+</head>
+<body>
+
+<canvas id="particles-canvas"></canvas>
+
+<header class="site-header">
+  <div class="brand"><a href="../home.html" style="display:flex;align-items:center;"><img class="brand-logo" data-src-dark="../assets/Rapidex Logo White.png" data-src-light="../assets/Rapidex Logo Black.png" src="../assets/Rapidex Logo White.png" alt="Rapidex" style="height:50px;" /></a></div>
+  <nav>
+    <a href="../index.html" class="active">Docs</a>
+    <a href="../whitepaper.html">Whitepaper</a>
+    <a href="#">SDKs</a>
+  </nav>
+  <div class="header-actions">
+    <button class="theme-toggle" type="button" title="Toggle theme" aria-label="Toggle theme">
+      <svg class="icon-moon" fill="none" viewBox="0 0 24 24" stroke="currentColor" stroke-width="2"><path stroke-linecap="round" stroke-linejoin="round" d="M21 12.79A9 9 0 1111.21 3 7 7 0 0021 12.79z"/></svg>
+      <svg class="icon-sun" fill="none" viewBox="0 0 24 24" stroke="currentColor" stroke-width="2"><circle cx="12" cy="12" r="4"/><path stroke-linecap="round" d="M12 2v2M12 20v2M4.93 4.93l1.41 1.41M17.66 17.66l1.41 1.41M2 12h2M20 12h2M6.34 17.66l-1.41 1.41M19.07 4.93l-1.41 1.41"/></svg>
+    </button>
+    <a class="icon-link" href="https://github.com/singhritik62/final-dex" title="GitHub">GitHub</a>
+  </div>
+</header>
+
+<div class="shell">
+  <aside class="sidebar">
+    <div class="group">
+      <div class="group-title">Rapidex v3</div>
+      <a href="../index.html">Overview</a>
+    </div>
+    <div class="group">
+      <div class="group-title">Concepts</div>
+      <a href="../concepts/architecture.html">Architecture</a>
+      <a href="../concepts/unsupported-tokens.html">Unsupported Tokens</a>
+    </div>
+    <div class="group">
+      <div class="group-title">Guides</div>
+      <a href="./getting-started.html">Getting Started</a>
+      <a href="./swapping.html" class="active">Swapping</a>
+      <a href="./managing-liquidity.html">Managing Liquidity</a>
+      <a href="./pool-data.html">Fetching Pool Data</a>
+    </div>
+    <div class="group">
+      <div class="group-title">Reference</div>
+      <a href="../reference/deployments.html">Deployments</a>
+      <a href="../reference/audits.html">Audits</a>
+    </div>
+  </aside>
+
+  <div class="content-wrap">
+    <main class="content">
+      <h1>Swapping</h1>
+      <p class="lede">Execute swaps against Rapidex v3 pools directly from your smart contracts using the SwapRouter.</p>
+
+      <p>This guide explains how to integrate token swaps on Rapidex v3 into your smart contracts. It covers interacting with the <code>ISwapRouter</code> contract for single-hop swaps using both exact input (known amount of input tokens) and exact output (known amount of desired output tokens).</p>
+
+      <h2 id="swap-router">The Swap Router</h2>
+      <p>The SwapRouter contract executes token swaps on Rapidex v3. It acts as the periphery wrapper around pools, ensuring safe execution, transfer of tokens, and slippage verification. Smart contracts call the router by passing parameters packed into structs.</p>
+
+      <h2 id="exact-input-single">Exact Input Single Hop</h2>
+      <p>An exact input swap trades a fixed amount of <code>tokenIn</code> for the maximum possible amount of <code>tokenOut</code>. A single-hop swap routes trades through a single pool identified by its fee tier.</p>
+
+      <h2 id="exact-output-single">Exact Output Single Hop</h2>
+      <p>An exact output swap trades a minimum possible amount of <code>tokenIn</code> for a fixed target amount of <code>tokenOut</code>. If the trade requires fewer tokens than the maximum allowed, the unused input tokens must be refunded to the caller.</p>
+
+      <h2 id="solidity-examples">Solidity Implementation Examples</h2>
+      <p>The following Solidity contract shows how to set up token approvals, transfer tokens from the user, and execute single-hop swaps via the SwapRouter:</p>
+
+      <pre><span class="code-lang">solidity</span><code>// SPDX-License-Identifier: MIT
+pragma solidity ^0.8.24;
+
+import "@rapidex/v3-periphery/contracts/interfaces/ISwapRouter.sol";
+import "@openzeppelin/contracts/token/ERC20/IERC20.sol";
+
+contract SwapExamples {
+    ISwapRouter public immutable swapRouter;
+
+    // The SwapRouter is deployed at a fixed address on each chain (see Deployments)
+    constructor(ISwapRouter _swapRouter) {
+        swapRouter = _swapRouter;
+    }
+
+    /// @notice Swap a fixed amount of tokenIn for tokenOut
+    function swapExactInputSingle(
+        address tokenIn,
+        address tokenOut,
+        uint24 fee,
+        uint256 amountIn,
+        uint256 amountOutMinimum
+    ) external returns (uint256 amountOut) {
+        // Pull tokenIn from the sender to this contract
+        IERC20(tokenIn).transferFrom(msg.sender, address(this), amountIn);
+
+        // Approve the SwapRouter to spend tokenIn from this contract
+        IERC20(tokenIn).approve(address(swapRouter), amountIn);
+
+        ISwapRouter.ExactInputSingleParams memory params =
+            ISwapRouter.ExactInputSingleParams({
+                tokenIn: tokenIn,
+                tokenOut: tokenOut,
+                fee: fee,
+                recipient: msg.sender,
+                deadline: block.timestamp,
+                amountIn: amountIn,
+                amountOutMinimum: amountOutMinimum,
+                sqrtPriceLimitX96: 0
+            });
+
+        // Execute the swap
+        amountOut = swapRouter.exactInputSingle(params);
+    }
+
+    /// @notice Swap tokenIn for a fixed amount of tokenOut
+    function swapExactOutputSingle(
+        address tokenIn,
+        address tokenOut,
+        uint24 fee,
+        uint256 amountOut,
+        uint256 amountInMaximum
+    ) external returns (uint256 amountIn) {
+        // Transfer max possible tokenIn from the sender
+        IERC20(tokenIn).transferFrom(msg.sender, address(this), amountInMaximum);
+
+        // Approve the router to spend tokenIn
+        IERC20(tokenIn).approve(address(swapRouter), amountInMaximum);
+
+        ISwapRouter.ExactOutputSingleParams memory params =
+            ISwapRouter.ExactOutputSingleParams({
+                tokenIn: tokenIn,
+                tokenOut: tokenOut,
+                fee: fee,
+                recipient: msg.sender,
+                deadline: block.timestamp,
+                amountOut: amountOut,
+                amountInMaximum: amountInMaximum,
+                sqrtPriceLimitX96: 0
+            });
+
+        // Execute the swap
+        amountIn = swapRouter.exactOutputSingle(params);
+
+        // Refund any leftover tokenIn to the caller
+        if (amountIn < amountInMaximum) {
+            IERC20(tokenIn).approve(address(swapRouter), 0);
+            IERC20(tokenIn).transfer(msg.sender, amountInMaximum - amountIn);
+        }
+    }
+}</code></pre>
+
+      <div class="callout warning">
+        <span class="callout-title">Leftover Approvals</span>
+        When performing exact output swaps, always reset the router's approval to 0 if there are unused tokens, and refund the remaining tokens to the caller to avoid locking user funds.
+      </div>
+
+      <h2 id="parameters-and-outputs">Parameters and Outputs Reference</h2>
+
+      <h3>1. exactInputSingle</h3>
+      <p>Executes a swap to trade a fixed input amount of one token for as many output tokens as possible.</p>
+      
+      <table>
+        <thead>
+          <tr><th>Struct Field (ExactInputSingleParams)</th><th>Type</th><th>Description</th></tr>
+        </thead>
+        <tbody>
+          <tr><td><code>tokenIn</code></td><td>address</td><td>The contract address of the input token (token to spend).</td></tr>
+          <tr><td><code>tokenOut</code></td><td>address</td><td>The contract address of the output token (token to receive).</td></tr>
+          <tr><td><code>fee</code></td><td>uint24</td><td>The fee tier of the pool (500 for 0.05%, 3000 for 0.30%, 10000 for 1.00%).</td></tr>
+          <tr><td><code>recipient</code></td><td>address</td><td>The destination address that will receive the output tokens.</td></tr>
+          <tr><td><code>deadline</code></td><td>uint256</td><td>The Unix timestamp after which the transaction will revert if not processed.</td></tr>
+          <tr><td><code>amountIn</code></td><td>uint256</td><td>The exact amount of input tokens to send for the swap.</td></tr>
+          <tr><td><code>amountOutMinimum</code></td><td>uint256</td><td>The minimum amount of output tokens expected. Reverts if slippage exceeds this bounds.</td></tr>
+          <tr><td><code>sqrtPriceLimitX96</code></td><td>uint160</td><td>The square root price limit. Set to <code>0</code> to bypass price limiting.</td></tr>
+        </tbody>
+      </table>
+
+      <p><strong>Output:</strong> <code>amountOut</code> (uint256) - The actual amount of output tokens sent to the recipient.</p>
+
+      <h3>2. exactOutputSingle</h3>
+      <p>Executes a swap to trade as few input tokens as possible for an exact target amount of output tokens.</p>
+
+      <table>
+        <thead>
+          <tr><th>Struct Field (ExactOutputSingleParams)</th><th>Type</th><th>Description</th></tr>
+        </thead>
+        <tbody>
+          <tr><td><code>tokenIn</code></td><td>address</td><td>The contract address of the input token (token to spend).</td></tr>
+          <tr><td><code>tokenOut</code></td><td>address</td><td>The contract address of the output token (token to receive).</td></tr>
+          <tr><td><code>fee</code></td><td>uint24</td><td>The fee tier of the pool (500 for 0.05%, 3000 for 0.30%, 10000 for 1.00%).</td></tr>
+          <tr><td><code>recipient</code></td><td>address</td><td>The destination address that will receive the output tokens.</td></tr>
+          <tr><td><code>deadline</code></td><td>uint256</td><td>The Unix timestamp after which the transaction will revert if not processed.</td></tr>
+          <tr><td><code>amountOut</code></td><td>uint256</td><td>The exact amount of output tokens to receive.</td></tr>
+          <tr><td><code>amountInMaximum</code></td><td>uint256</td><td>The maximum amount of input tokens allowed to be spent. Reverts if swap costs more.</td></tr>
+          <tr><td><code>sqrtPriceLimitX96</code></td><td>uint160</td><td>The square root price limit. Set to <code>0</code> to bypass price limiting.</td></tr>
+        </tbody>
+      </table>
+
+      <p><strong>Output:</strong> <code>amountIn</code> (uint256) - The actual amount of input tokens spent in the swap.</p>
+
+      <div class="page-nav">
+        <a class="prev" href="./getting-started.html"><span class="dir">Previous</span>Getting Started</a>
+        <a class="next" href="./managing-liquidity.html"><span class="dir">Next</span>Managing Liquidity</a>
+      </div>
+    </main>
+
+    <aside class="toc">
+      <div class="toc-title">On this page</div>
+      <a href="#swap-router">The Swap Router</a>
+      <a href="#exact-input-single">Exact Input Single Hop</a>
+      <a href="#exact-output-single">Exact Output Single Hop</a>
+      <a href="#solidity-examples">Solidity Implementation Examples</a>
+      <a href="#parameters-and-outputs">Parameters and Outputs Reference</a>
+    </aside>
+  </div>
+</div>
+
+<footer class="site-footer">
+  <span>&copy; 2026 Rapidex Labs. Documentation for the Rapidex v3 Smart Contracts.</span>
+  <div class="footer-links">
+    <a href="https://github.com/singhritik62/final-dex">GitHub</a>
+    <a href="https://discord.gg">Discord</a>
+    <a href="https://x.com">X</a>
+  </div>
+</footer>
+
+<script src="../assets/particles.js"></script>
+<script src="../assets/theme.js"></script>
+<script src="../assets/docs.js"></script>
+</body>
+</html>

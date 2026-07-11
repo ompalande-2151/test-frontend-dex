@@ -1,0 +1,393 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8" />
+<meta name="viewport" content="width=device-width, initial-scale=1.0" />
+<title>Managing Liquidity - Rapidex v3</title>
+<link rel="preconnect" href="https://fonts.googleapis.com" />
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin />
+<link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700&display=swap" rel="stylesheet" />
+<link rel="stylesheet" href="../assets/styles.css" />
+<script>(function(){try{if(localStorage.getItem('rapidex-theme')==='light')document.documentElement.setAttribute('data-theme','light');}catch(e){}})();</script>
+</head>
+<body>
+
+<canvas id="particles-canvas"></canvas>
+
+<header class="site-header">
+  <div class="brand"><a href="../home.html" style="display:flex;align-items:center;"><img class="brand-logo" data-src-dark="../assets/Rapidex Logo White.png" data-src-light="../assets/Rapidex Logo Black.png" src="../assets/Rapidex Logo White.png" alt="Rapidex" style="height:50px;" /></a></div>
+  <nav>
+    <a href="../index.html" class="active">Docs</a>
+    <a href="../whitepaper.html">Whitepaper</a>
+    <a href="#">SDKs</a>
+  </nav>
+  <div class="header-actions">
+    <button class="theme-toggle" type="button" title="Toggle theme" aria-label="Toggle theme">
+      <svg class="icon-moon" fill="none" viewBox="0 0 24 24" stroke="currentColor" stroke-width="2"><path stroke-linecap="round" stroke-linejoin="round" d="M21 12.79A9 9 0 1111.21 3 7 7 0 0021 12.79z"/></svg>
+      <svg class="icon-sun" fill="none" viewBox="0 0 24 24" stroke="currentColor" stroke-width="2"><circle cx="12" cy="12" r="4"/><path stroke-linecap="round" d="M12 2v2M12 20v2M4.93 4.93l1.41 1.41M17.66 17.66l1.41 1.41M2 12h2M20 12h2M6.34 17.66l-1.41 1.41M19.07 4.93l-1.41 1.41"/></svg>
+    </button>
+    <a class="icon-link" href="https://github.com/singhritik62/final-dex" title="GitHub">GitHub</a>
+  </div>
+</header>
+
+<div class="shell">
+  <aside class="sidebar">
+    <div class="group">
+      <div class="group-title">Rapidex v3</div>
+      <a href="../index.html">Overview</a>
+    </div>
+    <div class="group">
+      <div class="group-title">Concepts</div>
+      <a href="../concepts/architecture.html">Architecture</a>
+      <a href="../concepts/unsupported-tokens.html">Unsupported Tokens</a>
+    </div>
+    <div class="group">
+      <div class="group-title">Guides</div>
+      <a href="./getting-started.html">Getting Started</a>
+      <a href="./swapping.html">Swapping</a>
+      <a href="./managing-liquidity.html" class="active">Managing Liquidity</a>
+      <a href="./pool-data.html">Fetching Pool Data</a>
+    </div>
+    <div class="group">
+      <div class="group-title">Reference</div>
+      <a href="../reference/deployments.html">Deployments</a>
+      <a href="../reference/audits.html">Audits</a>
+    </div>
+  </aside>
+
+  <div class="content-wrap">
+    <main class="content">
+      <h1>Managing Liquidity</h1>
+      <p class="lede">Create, modify, and manage concentrated liquidity positions on Rapidex v3 directly from your smart contracts.</p>
+
+      <p>This guide explains how to integrate Concentrated Liquidity Position Management on Rapidex v3 into your smart contracts. It covers interacting with the <code>INonfungiblePositionManager</code> contract to mint, adjust, and collect accrued trading fees from liquidity positions.</p>
+
+      <h2 id="position-manager">Nonfungible Position Manager</h2>
+      <p>Rapidex v3 liquidity positions are tokenized as ERC-721 NFTs. The <code>NonfungiblePositionManager</code> contract handles the minting of new positions, increasing/decreasing liquidity, and fee collection. Each position is defined by its token pair, fee tier, tick range (lower and upper ticks), and current liquidity amount.</p>
+
+      <h2 id="receiving-nfts">Receiving Position NFTs</h2>
+      <p>When minting a liquidity position to a smart contract recipient, the smart contract must be capable of receiving and holding ERC-721 tokens. To support this, your contract must implement the <code>IERC721Receiver</code> interface and return the selector for <code>onERC721Received</code>.</p>
+
+      <h2 id="minting-positions">Minting a New Position</h2>
+      <p>To supply liquidity and create a new position, transfer the required tokens from the user, approve the position manager to spend them, and call the <code>mint</code> function with the specified range parameters.</p>
+
+      <h2 id="solidity-examples">Solidity Implementation Examples</h2>
+      <p>The following Solidity contract shows how to set up token approvals, handle the ERC-721 receiver callback, mint new positions, decrease liquidity, and collect accrued trading fees:</p>
+
+      <pre><span class="code-lang">solidity</span><code>// SPDX-License-Identifier: MIT
+pragma solidity ^0.8.24;
+
+import "@rapidex/v3-periphery/contracts/interfaces/INonfungiblePositionManager.sol";
+import "@openzeppelin/contracts/token/ERC20/IERC20.sol";
+import "@openzeppelin/contracts/token/ERC721/IERC721Receiver.sol";
+
+contract LiquidityExamples is IERC721Receiver {
+    INonfungiblePositionManager public immutable positionManager;
+
+    // Track position token IDs minted by users through this contract
+    mapping(uint256 => address) public positionOwners;
+
+    constructor(INonfungiblePositionManager _positionManager) {
+        positionManager = _positionManager;
+    }
+
+    /// @notice Required to receive ERC721 position NFTs
+    function onERC721Received(
+        address operator,
+        address from,
+        uint256 tokenId,
+        bytes calldata data
+    ) external override returns (bytes4) {
+        return this.onERC721Received.selector;
+    }
+
+    /// @notice Mint a new concentrated liquidity position
+    function mintNewPosition(
+        address token0,
+        address token1,
+        uint24 fee,
+        int24 tickLower,
+        int24 tickUpper,
+        uint256 amount0Desired,
+        uint256 amount1Desired,
+        uint256 amount0Min,
+        uint256 amount1Min
+    ) external returns (
+        uint256 tokenId,
+        uint128 liquidity,
+        uint256 amount0,
+        uint256 amount1
+    ) {
+        // Transfer tokens from the caller to this contract
+        IERC20(token0).transferFrom(msg.sender, address(this), amount0Desired);
+        IERC20(token1).transferFrom(msg.sender, address(this), amount1Desired);
+
+        // Approve the position manager to spend these tokens
+        IERC20(token0).approve(address(positionManager), amount0Desired);
+        IERC20(token1).approve(address(positionManager), amount1Desired);
+
+        INonfungiblePositionManager.MintParams memory params =
+            INonfungiblePositionManager.MintParams({
+                token0: token0,
+                token1: token1,
+                fee: fee,
+                tickLower: tickLower,
+                tickUpper: tickUpper,
+                amount0Desired: amount0Desired,
+                amount1Desired: amount1Desired,
+                amount0Min: amount0Min,
+                amount1Min: amount1Min,
+                recipient: address(this),
+                deadline: block.timestamp
+            });
+
+        // Call NonfungiblePositionManager to mint the position NFT
+        (tokenId, liquidity, amount0, amount1) = positionManager.mint(params);
+
+        // Track local owner
+        positionOwners[tokenId] = msg.sender;
+
+        // Refund any unused tokens to the sender
+        if (amount0 < amount0Desired) {
+            IERC20(token0).approve(address(positionManager), 0);
+            IERC20(token0).transfer(msg.sender, amount0Desired - amount0);
+        }
+        if (amount1 < amount1Desired) {
+            IERC20(token1).approve(address(positionManager), 0);
+            IERC20(token1).transfer(msg.sender, amount1Desired - amount1);
+        }
+    }
+
+    /// @notice Collect accrued fees from the position NFT
+    function collectAllFees(uint256 tokenId) external returns (uint256 amount0, uint256 amount1) {
+        require(positionOwners[tokenId] == msg.sender, "Not position owner");
+
+        INonfungiblePositionManager.CollectParams memory params =
+            INonfungiblePositionManager.CollectParams({
+                tokenId: tokenId,
+                recipient: msg.sender, // send directly to owner
+                amount0Max: type(uint128).max,
+                amount1Max: type(uint128).max
+            });
+
+        (amount0, amount1) = positionManager.collect(params);
+    }
+
+    /// @notice Decrease the active liquidity in an existing position
+    function decreaseLiquidityInPosition(
+        uint256 tokenId,
+        uint128 liquidity,
+        uint256 amount0Min,
+        uint256 amount1Min
+    ) external returns (uint256 amount0, uint256 amount1) {
+        require(positionOwners[tokenId] == msg.sender, "Not position owner");
+
+        INonfungiblePositionManager.DecreaseLiquidityParams memory params =
+            INonfungiblePositionManager.DecreaseLiquidityParams({
+                tokenId: tokenId,
+                liquidity: liquidity,
+                amount0Min: amount0Min,
+                amount1Min: amount1Min,
+                deadline: block.timestamp
+            });
+
+        (amount0, amount1) = positionManager.decreaseLiquidity(params);
+    }
+}</code></pre>
+
+      <h2 id="increase-liquidity">Increasing Liquidity</h2>
+      <p>To add more liquidity to an existing position, call <code>increaseLiquidity()</code> on the position manager with the token ID of the position NFT. The tokens are added within the same tick range as the original position.</p>
+
+      <pre><span class="code-lang">solidity</span><code>/// @notice Add liquidity to an existing position
+function increaseLiquidityInPosition(
+    uint256 tokenId,
+    uint256 amount0Desired,
+    uint256 amount1Desired,
+    uint256 amount0Min,
+    uint256 amount1Min
+) external returns (uint128 liquidity, uint256 amount0, uint256 amount1) {
+    require(positionOwners[tokenId] == msg.sender, "Not position owner");
+
+    // Fetch token addresses for this position from the manager
+    (
+        , , address token0, address token1,
+        , , , , , , ,
+    ) = positionManager.positions(tokenId);
+
+    // Transfer the desired token amounts from the caller
+    IERC20(token0).transferFrom(msg.sender, address(this), amount0Desired);
+    IERC20(token1).transferFrom(msg.sender, address(this), amount1Desired);
+
+    // Approve position manager to spend both tokens
+    IERC20(token0).approve(address(positionManager), amount0Desired);
+    IERC20(token1).approve(address(positionManager), amount1Desired);
+
+    INonfungiblePositionManager.IncreaseLiquidityParams memory params =
+        INonfungiblePositionManager.IncreaseLiquidityParams({
+            tokenId: tokenId,
+            amount0Desired: amount0Desired,
+            amount1Desired: amount1Desired,
+            amount0Min: amount0Min,
+            amount1Min: amount1Min,
+            deadline: block.timestamp
+        });
+
+    (liquidity, amount0, amount1) = positionManager.increaseLiquidity(params);
+
+    // Refund any unused tokens to the sender
+    if (amount0 < amount0Desired) {
+        IERC20(token0).approve(address(positionManager), 0);
+        IERC20(token0).transfer(msg.sender, amount0Desired - amount0);
+    }
+    if (amount1 < amount1Desired) {
+        IERC20(token1).approve(address(positionManager), 0);
+        IERC20(token1).transfer(msg.sender, amount1Desired - amount1);
+    }
+}</code></pre>
+
+      <h2 id="burning-position">Burning a Position</h2>
+      <p>Once all liquidity has been removed and all fees have been collected from a position (both values must be zero), you can permanently delete the position NFT by calling <code>burn(tokenId)</code>. This reclaims a small amount of gas and clears the storage slot.</p>
+      <pre><span class="code-lang">solidity</span><code>function burnPosition(uint256 tokenId) external {
+    require(positionOwners[tokenId] == msg.sender, "Not position owner");
+    // Liquidity and owed fees must both be 0 before burning
+    positionManager.burn(tokenId);
+    delete positionOwners[tokenId];
+}</code></pre>
+
+      <div class="callout warning">
+        <span class="callout-title">ERC721 Approval Warning</span>
+        If your contract transfers position NFTs, make sure to appropriately manage approvals or check permissions to prevent unauthorized transfers of liquidity ranges.
+      </div>
+
+      <h2 id="parameters-and-outputs">Parameters and Outputs Reference</h2>
+
+      <h3>1. mint</h3>
+      <p>Mints a new Concentrated Liquidity position NFT representing liquidity provided in a custom tick range.</p>
+
+      <table>
+        <thead>
+          <tr><th>Struct Field (MintParams)</th><th>Type</th><th>Description</th></tr>
+        </thead>
+        <tbody>
+          <tr><td><code>token0</code></td><td>address</td><td>The contract address of token0 (must have a lower address value).</td></tr>
+          <tr><td><code>token1</code></td><td>address</td><td>The contract address of token1 (must have a higher address value).</td></tr>
+          <tr><td><code>fee</code></td><td>uint24</td><td>The fee tier of the pool (500, 3000, or 10000).</td></tr>
+          <tr><td><code>tickLower</code></td><td>int24</td><td>The lower boundary of the price range (must be divisible by tick spacing).</td></tr>
+          <tr><td><code>tickUpper</code></td><td>int24</td><td>The upper boundary of the price range (must be divisible by tick spacing).</td></tr>
+          <tr><td><code>amount0Desired</code></td><td>uint256</td><td>The maximum amount of token0 desired to be deposited.</td></tr>
+          <tr><td><code>amount1Desired</code></td><td>uint256</td><td>The maximum amount of token1 desired to be deposited.</td></tr>
+          <tr><td><code>amount0Min</code></td><td>uint256</td><td>Slippage limit: Minimum amount of token0 required to be deposited.</td></tr>
+          <tr><td><code>amount1Min</code></td><td>uint256</td><td>Slippage limit: Minimum amount of token1 required to be deposited.</td></tr>
+          <tr><td><code>recipient</code></td><td>address</td><td>The address that will receive the minted NFT.</td></tr>
+          <tr><td><code>deadline</code></td><td>uint256</td><td>Unix timestamp after which the transaction reverts.</td></tr>
+        </tbody>
+      </table>
+
+      <p><strong>Outputs:</strong></p>
+      <ul>
+        <li><code>tokenId</code> (uint256) - The ID of the minted ERC-721 position NFT.</li>
+        <li><code>liquidity</code> (uint128) - The amount of liquidity added to the pool.</li>
+        <li><code>amount0</code> (uint256) - The actual amount of token0 deposited.</li>
+        <li><code>amount1</code> (uint256) - The actual amount of token1 deposited.</li>
+      </ul>
+
+      <h3>2. increaseLiquidity</h3>
+      <p>Adds additional token0 and/or token1 reserves to an existing position NFT.</p>
+
+      <table>
+        <thead>
+          <tr><th>Struct Field (IncreaseLiquidityParams)</th><th>Type</th><th>Description</th></tr>
+        </thead>
+        <tbody>
+          <tr><td><code>tokenId</code></td><td>uint256</td><td>The ID of the position NFT to increase liquidity for.</td></tr>
+          <tr><td><code>amount0Desired</code></td><td>uint256</td><td>The maximum amount of token0 desired to be added.</td></tr>
+          <tr><td><code>amount1Desired</code></td><td>uint256</td><td>The maximum amount of token1 desired to be added.</td></tr>
+          <tr><td><code>amount0Min</code></td><td>uint256</td><td>Slippage limit: Minimum amount of token0 required to be deposited.</td></tr>
+          <tr><td><code>amount1Min</code></td><td>uint256</td><td>Slippage limit: Minimum amount of token1 required to be deposited.</td></tr>
+          <tr><td><code>deadline</code></td><td>uint256</td><td>Unix timestamp after which the transaction reverts.</td></tr>
+        </tbody>
+      </table>
+
+      <p><strong>Outputs:</strong></p>
+      <ul>
+        <li><code>liquidity</code> (uint128) - The actual amount of liquidity added.</li>
+        <li><code>amount0</code> (uint256) - The actual amount of token0 deposited.</li>
+        <li><code>amount1</code> (uint256) - The actual amount of token1 deposited.</li>
+      </ul>
+
+      <h3>3. decreaseLiquidity</h3>
+      <p>Removes a portion of liquidity from a position NFT (reserves are held in the contract as owed tokens until collected).</p>
+
+      <table>
+        <thead>
+          <tr><th>Struct Field (DecreaseLiquidityParams)</th><th>Type</th><th>Description</th></tr>
+        </thead>
+        <tbody>
+          <tr><td><code>tokenId</code></td><td>uint256</td><td>The ID of the position NFT to decrease liquidity for.</td></tr>
+          <tr><td><code>liquidity</code></td><td>uint128</td><td>The amount of liquidity units to remove.</td></tr>
+          <tr><td><code>amount0Min</code></td><td>uint256</td><td>Slippage limit: Minimum amount of token0 expected to be withdrawn.</td></tr>
+          <tr><td><code>amount1Min</code></td><td>uint256</td><td>Slippage limit: Minimum amount of token1 expected to be withdrawn.</td></tr>
+          <tr><td><code>deadline</code></td><td>uint256</td><td>Unix timestamp after which the transaction reverts.</td></tr>
+        </tbody>
+      </table>
+
+      <p><strong>Outputs:</strong></p>
+      <ul>
+        <li><code>amount0</code> (uint256) - The amount of token0 removed.</li>
+        <li><code>amount1</code> (uint256) - The amount of token1 removed.</li>
+      </ul>
+
+      <h3>4. collect</h3>
+      <p>Collects accrued trading fees and/or decreased liquidity tokens from the position NFT.</p>
+
+      <table>
+        <thead>
+          <tr><th>Struct Field (CollectParams)</th><th>Type</th><th>Description</th></tr>
+        </thead>
+        <tbody>
+          <tr><td><code>tokenId</code></td><td>uint256</td><td>The ID of the position NFT to collect fees from.</td></tr>
+          <tr><td><code>recipient</code></td><td>address</td><td>The address that will receive the collected tokens.</td></tr>
+          <tr><td><code>amount0Max</code></td><td>uint128</td><td>The maximum amount of token0 to collect (use <code>type(uint128).max</code> to collect all).</td></tr>
+          <tr><td><code>amount1Max</code></td><td>uint128</td><td>The maximum amount of token1 to collect (use <code>type(uint128).max</code> to collect all).</td></tr>
+        </tbody>
+      </table>
+
+      <p><strong>Outputs:</strong></p>
+      <ul>
+        <li><code>amount0</code> (uint256) - The actual amount of token0 collected.</li>
+        <li><code>amount1</code> (uint256) - The actual amount of token1 collected.</li>
+      </ul>
+
+      <div class="page-nav">
+        <a class="prev" href="./swapping.html"><span class="dir">Previous</span>Swapping</a>
+        <a class="next" href="./pool-data.html"><span class="dir">Next</span>Fetching Pool Data</a>
+      </div>
+    </main>
+
+    <aside class="toc">
+      <div class="toc-title">On this page</div>
+      <a href="#position-manager">Nonfungible Position Manager</a>
+      <a href="#receiving-nfts">Receiving Position NFTs</a>
+      <a href="#minting-positions">Minting a New Position</a>
+      <a href="#solidity-examples">Solidity Implementation Examples</a>
+      <a href="#increase-liquidity">Increasing Liquidity</a>
+      <a href="#burning-position">Burning a Position</a>
+      <a href="#parameters-and-outputs">Parameters and Outputs Reference</a>
+    </aside>
+  </div>
+</div>
+
+<footer class="site-footer">
+  <span>&copy; 2026 Rapidex Labs. Documentation for the Rapidex v3 Smart Contracts.</span>
+  <div class="footer-links">
+    <a href="https://github.com/singhritik62/final-dex">GitHub</a>
+    <a href="https://discord.gg">Discord</a>
+    <a href="https://x.com">X</a>
+  </div>
+</footer>
+
+<script src="../assets/particles.js"></script>
+<script src="../assets/theme.js"></script>
+<script src="../assets/docs.js"></script>
+</body>
+</html>
