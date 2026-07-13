@@ -23,6 +23,7 @@ import { ToastContainer } from "./components/ui/ToastContainer";
 import { Menu, X, Sun, Moon, Wallet, CheckCircle2, AlertCircle, Power, PlugZap, ExternalLink, ChevronDown, Plus, Layers, ChevronRight } from "lucide-react";
 import { useThemeStore } from "./store/themeStore";
 import { mstChain } from "./config/chains";
+import { BugBountyModal } from "./components/landing/BugBountyModal";
 
 const queryClient = new QueryClient({
   defaultOptions: {
@@ -50,6 +51,7 @@ function Navigation() {
 
   const [showDropdown, setShowDropdown] = useState(false);
   const dropdownRef = useRef<HTMLDivElement>(null);
+  const [isBugBountyOpen, setIsBugBountyOpen] = useState(false);
 
   useEffect(() => {
     function handleClickOutside(event: MouseEvent) {
@@ -95,6 +97,7 @@ function Navigation() {
   ];
 
   return (
+    <>
     <motion.nav
       initial={{ y: -50, opacity: 0 }}
       animate={{ y: [0, -3, 0], opacity: 1 }}
@@ -196,6 +199,13 @@ function Navigation() {
                 >
                   Developer docs
                 </a>
+                <button
+                  onClick={() => setIsBugBountyOpen(true)}
+                  className={`hidden lg:inline-block font-medium text-[15px] transition-all duration-300 hover:-translate-y-[1px] mr-4
+                    ${isDark ? "text-[rgba(255,255,255,0.65)] hover:text-white" : "text-zinc-600 hover:text-black"}`}
+                >
+                  Bug Bounty Testnet
+                </button>
                 <Link to="/swap" className="hidden sm:block">
                   <button
                     className={`font-medium rounded-[18px] px-8 py-3 hover:scale-[1.03] transition-all duration-300 flex items-center justify-center text-[15px]
@@ -355,6 +365,15 @@ function Navigation() {
                   >
                     Devlopers docs
                   </a>
+                  <button
+                    onClick={() => {
+                      setIsOpen(false);
+                      setIsBugBountyOpen(true);
+                    }}
+                    className="rounded-2xl px-4 py-2.5 text-sm font-extrabold uppercase tracking-[0.16em] transition duration-200 text-zinc-300 hover:bg-white/5 text-left"
+                  >
+                    Bug Bounty Testnet
+                  </button>
                   <Link to="/swap" onClick={() => setIsOpen(false)} className="w-full mt-2">
                     <button className="w-full flex items-center justify-center rounded-2xl bg-white text-black font-extrabold uppercase tracking-wider py-3.5 text-sm hover:brightness-110 active:scale-[0.98] transition-all">
                       Launch App
@@ -519,6 +538,12 @@ function Navigation() {
         )}
       </AnimatePresence>
     </motion.nav>
+    <BugBountyModal
+      isOpen={isBugBountyOpen}
+      onClose={() => setIsBugBountyOpen(false)}
+      theme={theme}
+    />
+    </>
   );
 }
 

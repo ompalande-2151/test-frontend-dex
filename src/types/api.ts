@@ -123,3 +123,16 @@ export interface CreateLiquidityDto {
   txHash: string;
   chainId: number;
 }
+
+export type BugBountySeverity = "critical" | "high" | "medium" | "low";
+
+export interface CreateBugBountyReportDto {
+  title: string;
+  severity: BugBountySeverity;
+  description: string;
+  stepsToReproduce: string;
+  contactEmail: string;
+  walletAddress?: string;
+  pocUrl?: string;
+  chainId: number;
+}
